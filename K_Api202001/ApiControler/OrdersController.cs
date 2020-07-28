@@ -25,6 +25,9 @@ namespace K_Api202001.ApiControler
         private readonly SmtpSettings _SmtpSettings;
         private readonly string imgProdectPath = "";
 
+        public float pageCount { get; set; }
+        public int itemCount = 20;
+
         public OrdersController(IConfiguration configuration, ApplicationDbContext db, UserManager<UserIdentity> _userManager, RoleManager<IdentityRole> _roleManager, SignInManager<UserIdentity> signInManager)
         {
             userManager = _userManager;
@@ -43,9 +46,10 @@ namespace K_Api202001.ApiControler
 
         // GET: api/Orders
         [HttpGet ("orderStatus")]
-        public async Task<IActionResult> GetOrders(orderStatus? orderStatus)
+        public async Task<IActionResult> GetOrders( int currentPage, orderStatus? orderStatus)
         {
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+            if (user == null) return Unauthorized();
             if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved)
             {
                 var order = _contect.Orders.Where(i => i.SeallerId == user.Id && orderStatus == null ? true : i.orderStatus == orderStatus)
@@ -77,6 +81,7 @@ namespace K_Api202001.ApiControler
                        i.Productprice,
                        i.product.Id,
                        i.ProductStock,
+                       
                         Form= i.Form.Select(i => new { i.id,i.Key,i.value} ).ToList(),
                         Color=new{
                             i.CodeColor,
@@ -98,7 +103,16 @@ namespace K_Api202001.ApiControler
                    }
                     
                     }).OrderByDescending(i=>i.Date).ToList();
-                return Ok(order);
+
+                // Pagenation
+
+                pageCount = (int)Math.Ceiling(decimal.Divide(order.Count, itemCount));
+                if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+                // End 
+
+                if (order.Count == 0) return NotFound();
+                else return Ok(new { itemCount, pageCount, currentPage, Data = order.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
+             
             }
             else if (await userManager.IsInRoleAsync(user, "User") && user?.Confirmed == Confirmed.approved)
             {
@@ -156,7 +170,14 @@ namespace K_Api202001.ApiControler
                         }
 
                    }).OrderByDescending(i => i.Date).ToList();
-                return Ok(order);
+
+
+                pageCount = (int)Math.Ceiling(decimal.Divide(order.Count, itemCount));
+                if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+                // End 
+
+                if (order.Count == 0) return NotFound();
+                else return Ok(new { itemCount, pageCount, currentPage, Data = order.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
 
             }
             else if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed == Confirmed.approved)
@@ -226,7 +247,13 @@ namespace K_Api202001.ApiControler
                         }
 
                     }).OrderByDescending(i => i.Date).ToList();
-                return Ok(order);
+
+                pageCount = (int)Math.Ceiling(decimal.Divide(order.Count, itemCount));
+                if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+                // End 
+
+                if (order.Count == 0) return NotFound();
+                else return Ok(new { itemCount, pageCount, currentPage, Data = order.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
 
             }
 
@@ -235,12 +262,13 @@ namespace K_Api202001.ApiControler
 
 
         [HttpGet("Id")]
-        public async Task<IActionResult> GetOrdersId(int?  Id)
+        public async Task<IActionResult> GetOrdersId(int  Id)
         {
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+            if (user == null) return Unauthorized();
             if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved)
             {
-                var order = _contect.Orders.Where(i => i.SeallerId == user.Id && Id == null ? true : i.Id == Id)
+                var order = _contect.Orders
                      .Include(i => i.User)
                     .Include(i => i.User.UserIdentity)
                     .Include(i => i.Form)
@@ -251,6 +279,7 @@ namespace K_Api202001.ApiControler
                     .Select(i => new {
 
                         i.Id,
+                        i.SeallerId,
                         i.ProductId,
                         i.Date,
                         i.description,
@@ -291,13 +320,14 @@ namespace K_Api202001.ApiControler
                             //i.User.UserIdentity.PhoneNumber,
                         }
 
-                    }).OrderByDescending(i => i.Date).ToList();
+                    }).SingleOrDefault(i => i.SeallerId == user.Id && i.Id == Id);
+                if (order == null) return NotFound();
                 return Ok(order);
             }
             else if (await userManager.IsInRoleAsync(user, "User") && user?.Confirmed == Confirmed.approved)
             {
 
-                var order = _contect.Orders.Where(i => i.UserId == user.Id && Id == null ? true : i.Id == Id)
+                var order = _contect.Orders
                     .Include(i => i.User)
                     .Include(i => i.User.UserIdentity)
                     .Include(i => i.Form)
@@ -309,6 +339,7 @@ namespace K_Api202001.ApiControler
                     .Select(i => new {
 
                         i.Id,
+                        i.UserId,
                         i.ProductId,
                         i.Date,
                         i.description,
@@ -350,7 +381,8 @@ namespace K_Api202001.ApiControler
                             //i.User.UserIdentity.PhoneNumber,
                         }
 
-                    }).OrderByDescending(i => i.Date).ToList();
+                    }).SingleOrDefault(i => i.UserId == user.Id &&  i.Id == Id);
+                if (order == null) return NotFound();
                 return Ok(order);
 
             }
@@ -358,7 +390,7 @@ namespace K_Api202001.ApiControler
             {
 
                
-              var order = _contect.Orders.Where(i => i.UserId == user.Id && Id == null ? true : i.Id == Id)
+              var order = _contect.Orders
                     .Include(i => i.User)
                     .Include(i => i.User.UserIdentity)
                     .Include(i => i.Form)
@@ -421,7 +453,8 @@ namespace K_Api202001.ApiControler
 
                         }
 
-                    }).OrderByDescending(i => i.Date).ToList();
+                    }).SingleOrDefault( i=> i.Id == Id);
+                if (order == null) return NotFound();
                 return Ok(order);
 
             }
@@ -433,6 +466,7 @@ namespace K_Api202001.ApiControler
         public async Task<IActionResult> PostOrders(OrderModeView model)
         {
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+            if (user == null) return Unauthorized();
             if (await userManager.IsInRoleAsync(user, "User") && user?.Confirmed == Confirmed.approved)
             {
 
@@ -526,6 +560,7 @@ namespace K_Api202001.ApiControler
         public async Task<IActionResult> Approved(orderstateModeview model)     
         {
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+            if (user == null) return Unauthorized();
             if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved)
             {
                 var order = _contect.Orders.SingleOrDefault(i => i.Id == model.OrderId && i.SeallerId==user.Id);
@@ -572,6 +607,7 @@ namespace K_Api202001.ApiControler
         public async Task<IActionResult> ReceiptCode(int Id)
         {
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+            if (user == null) return Unauthorized();
             if (await userManager.IsInRoleAsync(user, "User") && user?.Confirmed == Confirmed.approved)
             {
                 var order = _contect.Orders.SingleOrDefault(i => i.Id ==Id &&i.UserId==user.Id);
@@ -610,6 +646,7 @@ namespace K_Api202001.ApiControler
             var order = new Order();
             var ReceiptCode = new ReceiptCode();
          var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+            if (user == null) return Unauthorized();
             if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved)
             {
                  order = _contect.Orders.SingleOrDefault(i => i.Id == model.OrderId);

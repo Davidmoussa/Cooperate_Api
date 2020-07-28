@@ -60,6 +60,7 @@ namespace K_Api202001.Data
         public virtual DbSet<productColor> productColor { get; set; }
         public virtual DbSet<Order> Orders { get; set; }
         public virtual DbSet<ReceiptCode> ReceiptCode { get; set; }
+        public virtual DbSet<Report> Reports { get; set; }
 
 
 

@@ -17,7 +17,7 @@ namespace K_Api202001.Models.ModeView
        
         public double price { get; set; }
         [Required]
-        public int ProductTypeid { get; set; }
+        public int categoryId { get; set; }
         [Required]
         public bool Stock { get; set; }
         public int? StockCount { get; set; }
@@ -65,7 +65,7 @@ namespace K_Api202001.Models.ModeView
 
         public double price { get; set; }
         [Required]
-        public int ProductTypeid { get; set; }
+        public int categoryId { get; set; }
         [Required]
         public bool Stock { get; set; }
         public int? StockCount { get; set; }

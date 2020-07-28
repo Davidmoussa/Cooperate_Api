@@ -16,6 +16,9 @@ namespace K_Api202001.ApiControler
     {
         private readonly ApplicationDbContext _context;
 
+        public float pageCount { get; set; }
+        public int itemCount = 20;
+
         public zonesController(ApplicationDbContext context)
         {
             _context = context;
@@ -23,23 +26,32 @@ namespace K_Api202001.ApiControler
 
         // GET: api/zones
         [HttpGet("/{CityId}")]
-        public async Task<ActionResult<IEnumerable<zone>>> GetZones(int CityId)
+        public async Task<ActionResult<IEnumerable<zone>>> GetZones( int currentPage  ,  int CityId)
         {
-            return await _context.Zones.Where(i=>i.Cityid== CityId).ToListAsync();
+            var Zones= _context.Zones.Where(i=>i.Cityid== CityId).Select(i=>new { i.id, i.Name, i.AName ,i.Cityid}).ToList();
+
+            // Pagenation
+
+            pageCount = (int)Math.Ceiling(decimal.Divide(Zones.Count, itemCount));
+            if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+            // End 
+
+            if (Zones.Count == 0) return NotFound();
+            else return Ok(new { itemCount, pageCount, currentPage, Data = Zones.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
         }
 
         // GET: api/zones/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<zone>> Getzone(int id)
+        public async Task<IActionResult> Getzone(int id)
         {
-            var zone = await _context.Zones.FindAsync(id);
+            var zone =  _context.Zones.Select(i => new { i.id, i.Name, i.AName, i.Cityid }).SingleOrDefault(i=>i.id==id);
 
             if (zone == null)
             {
                 return NotFound();
             }
 
-            return zone;
+            return Ok(zone);
         }
 
         // PUT: api/zones/5

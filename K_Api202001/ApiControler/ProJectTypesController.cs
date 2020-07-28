@@ -15,6 +15,8 @@ namespace K_Api202001.ApiControler
     public class ProJectTypesController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        public float pageCount { get; set; }
+        public int itemCount = 20;
 
         public ProJectTypesController(ApplicationDbContext context)
         {
@@ -23,23 +25,31 @@ namespace K_Api202001.ApiControler
 
         // GET: api/ProJectTypes
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProJectType>>> GetProJectType()
+        public async Task<IActionResult> GetProJectType(int currentPage)
         {
-            return await _context.ProJectType.ToListAsync();
+            var ProJectType=   _context.ProJectType.Select(i=>new { i.id,i.Name,i.AName}).ToList();
+            // Pagenation
+
+            pageCount = (int)Math.Ceiling(decimal.Divide(ProJectType.Count, itemCount));
+            if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+            // End 
+
+            if (ProJectType.Count == 0) return NotFound();
+            else return Ok(new { itemCount, pageCount, currentPage, Data = ProJectType.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
         }
 
         // GET: api/ProJectTypes/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<ProJectType>> GetProJectType(int id)
+        public async Task<IActionResult> GetProJectTypeId(int id)
         {
-            var proJectType = await _context.ProJectType.FindAsync(id);
+            var proJectType =  _context.ProJectType.Select(i => new { i.id, i.Name, i.AName }).SingleOrDefault(i=>i.id==id);
 
             if (proJectType == null)
             {
                 return NotFound();
             }
 
-            return proJectType;
+            return Ok( proJectType);
         }
 
         // PUT: api/ProJectTypes/5

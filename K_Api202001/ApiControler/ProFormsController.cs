@@ -52,6 +52,7 @@ namespace K_Api202001.ApiControler
                 form.Name = proForm.Name;
                 form.AName = proForm.AName;
                 form.Required = proForm.Required;
+                form.Type = proForm.Type;
                 form.ProductTypeId = proForm.ProductTypeId;
             }
             _context.SaveChanges();
@@ -61,8 +62,9 @@ namespace K_Api202001.ApiControler
                 form.Id,
                 form.Name,
                 form.AName,
-                form.ProductType
-              
+                form.ProductType,
+                proForm.Required,
+                proForm.Type
             }) ;
            
         }
@@ -74,7 +76,7 @@ namespace K_Api202001.ApiControler
         public async Task<ActionResult<ProForm>> PostProForm(PreFormModelView Model)
         {
 
-            var proForm = new ProForm() { Name = Model.Name, AName = Model.AName, ProductTypeId = Model.ProductTypeId,Required=Model.Required };
+            var proForm = new ProForm() { Name = Model.Name, AName = Model.AName, ProductTypeId = Model.ProductTypeId,Required=Model.Required ,Type=Model.Type};
 
 
             _context.ProForm.Add(proForm);
@@ -85,7 +87,9 @@ namespace K_Api202001.ApiControler
                 proForm.Id,
                 proForm.Name,
                 proForm.AName,
-                proForm.ProductType
+                proForm.ProductType,
+                proForm.Required,
+                proForm.Type
             });
         }
 

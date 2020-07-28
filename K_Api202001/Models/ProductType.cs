@@ -30,10 +30,15 @@ namespace K_Api202001.Models
         public string Name { get; set; }
         public string AName { get; set; }
         public bool? Required { get; set; }
+        public Type Type { get; set; }
         
         public virtual ProductType ProductType { get; set; }
 
         public virtual ICollection<productForm> Form { get; set; }
+    }
+    public enum Type
+    {
+    Text , Number
     }
    
 }

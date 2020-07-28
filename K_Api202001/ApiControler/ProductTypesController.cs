@@ -17,6 +17,8 @@ namespace K_Api202001.ApiControler
     {
         private readonly ApplicationDbContext _context;
 
+        public float pageCount { get; set; }
+        public int itemCount = 20;
         public ProductTypesController(ApplicationDbContext context)
         {
             _context = context;
@@ -24,20 +26,29 @@ namespace K_Api202001.ApiControler
 
         // GET: api/ProductTypes
         [HttpGet]
-        public async Task<IActionResult> GetProductType()
+        public async Task<IActionResult> GetProduc( int currentPage)
         {
-            return Ok(_context.ProductType
+            var ProductType = _context.ProductType
                 .Include(i => i.ProForm)
                 .Include(i => i.ProJectType)
                 .Select(i => new
-            {
-                i.Id,
-                i.AName,
-                i.Name,
-               
-                Type = new { i.ProJectType.id, i.ProJectType.Name, i.ProJectType.AName },
-                Form = i.ProForm.Select(i => new { i.Id, i.Name, i.AName, i.Required }).ToList(),
-            }));
+                {
+                    i.Id,
+                    i.AName,
+                    i.Name,
+
+                    category = new { id = i.ProJectType.id, category = i.ProJectType.Name, Acategory = i.ProJectType.AName },
+                    Form = i.ProForm.Select(i => new { i.Id, i.Name, i.AName, i.Required }).ToList(),
+                }).ToList();
+
+            // Pagenation
+
+            pageCount = (int)Math.Ceiling(decimal.Divide(ProductType.Count, itemCount));
+            if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+            // End 
+
+            if (ProductType.Count == 0) return NotFound();
+            else return Ok(new { itemCount, pageCount, currentPage, Data = ProductType.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
         }
 
         [HttpGet("Id")]
@@ -52,8 +63,8 @@ namespace K_Api202001.ApiControler
                 i.AName,
                 i.Name,
 
-                Type = new { i.ProJectType.id, i.ProJectType.Name, i.ProJectType.AName },
-                Form = i.ProForm.Select(i => new { i.Id, i.Name, i.AName, i.Required }).ToList(),
+                    category = new { id = i.ProJectType.id, category = i.ProJectType.Name, Acategory = i.ProJectType.AName },
+                    Form = i.ProForm.Select(i => new { i.Id, i.Name, i.AName, i.Required }).ToList(),
             }).SingleOrDefault(i=>i.Id==Id);
             if (ProductType == null) return NotFound();
             else return Ok(ProductType);
@@ -81,9 +92,9 @@ namespace K_Api202001.ApiControler
             _context.SaveChanges();
            
             return Ok (new { 
-                ProdectType.Id ,
-                ProdectType.AName ,
-                ProdectType.Name ,
+              id=  ProdectType.Id ,
+                Acategory=  ProdectType.AName ,
+                category=  ProdectType.Name ,
                 ProdectType.ProJectTypeId ,
             });
         }
@@ -106,8 +117,8 @@ namespace K_Api202001.ApiControler
             return Ok(new
             {
                 prodectType.Id,
-                prodectType.AName,
-                prodectType.Name,
+                Acategory = prodectType.AName,
+                category = prodectType.Name,
                 prodectType.ProJectTypeId,
             });
         }

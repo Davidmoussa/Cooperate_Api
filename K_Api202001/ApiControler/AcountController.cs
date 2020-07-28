@@ -29,6 +29,9 @@ namespace K_Api202001.ApiControler
         private IConfiguration _configuration;
         private readonly SmtpSettings _SmtpSettings;
 
+        public float pageCount { get; set; }
+        public int itemCount = 20;
+
         public AcountController(IConfiguration configuration, ApplicationDbContext db, UserManager<UserIdentity> _userManager, RoleManager<IdentityRole> _roleManager, SignInManager<UserIdentity> signInManager)
         {
             userManager = _userManager;
@@ -222,6 +225,7 @@ namespace K_Api202001.ApiControler
             try
             {
                 var Logger = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+
                 if (Logger != null)
                 {
                     if (await userManager.IsInRoleAsync(Logger, "User") && Logger.Confirmed == Confirmed.approved)
@@ -340,6 +344,7 @@ namespace K_Api202001.ApiControler
             try
             {
                 var Logger = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+                if (Logger == null) return Unauthorized();
                 if (Logger != null)
                 {
                     if (await userManager.IsInRoleAsync(Logger, "Sealler") && Logger.Confirmed == Confirmed.approved)
@@ -398,6 +403,7 @@ namespace K_Api202001.ApiControler
         public async Task<ActionResult> Login(LoginModeView model)
         {
             var user = await userManager.FindByNameAsync(model.UserName);
+            if (user == null) return BadRequest(new { massage = "login Name Not Match ", Amassage = "" });
             if (user != null && await userManager.CheckPasswordAsync(user, model.Password) && user.Confirmed == Confirmed.approved)
             {
 
@@ -471,8 +477,8 @@ namespace K_Api202001.ApiControler
 
                         });
                     }
-                    
-                    
+
+
                     else return Unauthorized();
                 }
                 else if (await userManager.IsInRoleAsync(user, "Adman"))
@@ -489,7 +495,7 @@ namespace K_Api202001.ApiControler
                 else return Unauthorized();
 
             }
-            else return Unauthorized();
+            else return Unauthorized(new { massage = "Password Not Match ", Amassage = "" });
 
 
 
@@ -500,6 +506,8 @@ namespace K_Api202001.ApiControler
         public async Task<IActionResult> GetAcount()
         {
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+
+            if (user == null) return Unauthorized();
             if (await userManager.IsInRoleAsync(user, "User") && user?.Confirmed == Confirmed.approved)
             {
                 return Ok(_contect.Users.Include(i => i.UserIdentity).Select(i => new
@@ -558,6 +566,7 @@ namespace K_Api202001.ApiControler
         public async Task<IActionResult> GetAcount(string Id)
         {
             var user = await userManager.FindByIdAsync(Id);
+
             if (await userManager.IsInRoleAsync(user, "User") && user?.Confirmed == Confirmed.approved)
             {
                 return Ok(_contect.Users.Include(i => i.UserIdentity).Select(i => new
@@ -592,6 +601,212 @@ namespace K_Api202001.ApiControler
 
         }
 
+        [Authorize]
+        [HttpGet("Seallers")]
+        public async Task<IActionResult> GetAcountAllSealler( int currentPage)
+        {
+            var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+
+            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed == Confirmed.approved)
+            {
+                var Seallers = _contect.Seallers.Include(i => i.UserIdentity).OrderByDescending(i => i.Hdate).Select(i => new
+                {
+                    i.id,
+                    i.projectAName,
+                    i.projectName,
+                    i.description,
+
+                    i.UserIdentity.Email,
+                    i.UserIdentity.PhoneNumber,
+                    ProJectType = i.ProJectType == null ? null : new { i.ProJectType.id, i.ProJectType.Name, i.ProJectType.AName },
+                    City = i.City == null ? null : new { i.City.id, i.City.Name, i.City.AName },
+                    zone = i.zone == null ? null : new { i.zone.id, i.zone.Name, i.zone.AName },
+                    i.UserIdentity.Confirmed,
+                    loginName = i.UserIdentity.UserName,
+                    Role = "Sealler"
+                }).ToList();
+                pageCount = (int)Math.Ceiling(decimal.Divide(Seallers.Count, itemCount));
+                if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+                if (Seallers.Count == 0) return NotFound();
+                else return Ok(new { itemCount=Seallers.Count, pageCount, currentPage, Data = Seallers.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
+
+            }
+
+            else return Unauthorized();
+
+        }
+        [Authorize]
+        [HttpGet("Users")]
+        public async Task<IActionResult> GetAcountAllUser( int currentPage)
+        {
+            var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+
+            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed == Confirmed.approved)
+            {
+                var User = _contect.Users.Include(i => i.UserIdentity).Select(i => new
+                {
+                    i.id,
+                    i.Name,
+                    i.AName,
+                    i.UserIdentity.Email,
+                    i.UserIdentity.PhoneNumber,
+                    i.UserIdentity.Confirmed,
+                    loginName = i.UserIdentity.UserName,
+                    Role = "User"
+                }).ToList();
+
+                pageCount = (int)Math.Ceiling(decimal.Divide(User.Count, itemCount));
+                if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+                if (User.Count == 0) return NotFound();
+                else return Ok(new { itemCount, pageCount, currentPage, Data = User.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
+               
+            }
+
+
+            else return Unauthorized();
+
+        }
+
+
+        [Authorize]
+        [HttpGet("UsersSearch/{Search}")]
+        public async Task<IActionResult> GetAcountBlockSearch(string Search,int currentPage)
+        {
+            var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+
+            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed == Confirmed.approved)
+            {
+                var User = _contect.Users
+                    .Where(i=>i.id== Search || i.Name==Search || i.AName == Search || i.UserIdentity.Email == Search )
+                    .Include(i => i.UserIdentity).Select(i => new
+                {
+                    i.id,
+                    i.Name,
+                    i.AName,
+                    i.UserIdentity.Email,
+                    i.UserIdentity.PhoneNumber,
+                    i.UserIdentity.Confirmed,
+                    loginName = i.UserIdentity.UserName,
+                    Role = "User"
+                }).ToList();
+
+                pageCount = (int)Math.Ceiling(decimal.Divide(User.Count, itemCount));
+                if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+                if (User.Count == 0) return NotFound();
+                else return Ok(new { itemCount, pageCount, currentPage, Data = User.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
+
+            }
+
+
+            else return Unauthorized();
+
+        }
+
+        [Authorize]
+        [HttpGet("SeallersSearch/{Search}")]
+        public async Task<IActionResult> GetAcountAllSeallerSearch(string Search, int currentPage)
+        {
+            var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+
+            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed == Confirmed.approved)
+            {
+                var Seallers = _contect.Seallers.
+                      Where(i => i.id == Search || i.projectAName == Search || i.projectName == Search || i.UserIdentity.Email == Search
+                      || i.UserIdentity.PhoneNumber == Search || i.ProJectType.AName == Search || i.ProJectType.Name == Search
+                      || i.City.Name == Search || i.City.AName == Search)
+                    .Include(i => i.UserIdentity).OrderByDescending(i => i.Hdate).Select(i => new
+                {
+                    i.id,
+                    i.projectAName,
+                    i.projectName,
+                    i.description,
+
+                    i.UserIdentity.Email,
+                    i.UserIdentity.PhoneNumber,
+                    ProJectType = i.ProJectType == null ? null : new { i.ProJectType.id, i.ProJectType.Name, i.ProJectType.AName },
+                    City = i.City == null ? null : new { i.City.id, i.City.Name, i.City.AName },
+                    zone = i.zone == null ? null : new { i.zone.id, i.zone.Name, i.zone.AName },
+                    i.UserIdentity.Confirmed,
+                    loginName = i.UserIdentity.UserName,
+                    Role = "Sealler"
+                }).ToList();
+                pageCount = (int)Math.Ceiling(decimal.Divide(Seallers.Count, itemCount));
+                if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+                if (Seallers.Count == 0) return NotFound();
+                else return Ok(new { itemCount, pageCount, currentPage, Data = Seallers.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
+
+            }
+
+            else return Unauthorized();
+
+        }
+
+        [Authorize]
+        [HttpGet("Seallers/Requst")]
+        public async Task<IActionResult> GetAcountAllSeallerRequst( int currentPage)
+        {
+            var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+
+            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed == Confirmed.approved)
+            {
+                var Seallers = _contect.Seallers.
+                      Where(i => i.UserIdentity.Confirmed == Confirmed.non).OrderByDescending(i => i.Hdate).Select(i => new
+                    {
+                        i.id,
+                        i.projectAName,
+                        i.projectName,
+                        i.description,
+
+                        i.UserIdentity.Email,
+                        i.UserIdentity.PhoneNumber,
+                        ProJectType = i.ProJectType == null ? null : new { i.ProJectType.id, i.ProJectType.Name, i.ProJectType.AName },
+                        City = i.City == null ? null : new { i.City.id, i.City.Name, i.City.AName },
+                        zone = i.zone == null ? null : new { i.zone.id, i.zone.Name, i.zone.AName },
+                        i.UserIdentity.Confirmed,
+                        loginName = i.UserIdentity.UserName,
+                        Role = "Sealler"
+                    }).ToList();
+                pageCount = (int)Math.Ceiling(decimal.Divide(Seallers.Count, itemCount));
+                if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+                if (Seallers.Count == 0) return NotFound();
+                else return Ok(new { itemCount, pageCount, currentPage, Data = Seallers.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
+
+            }
+
+            else return Unauthorized();
+
+        }
+
+        [Authorize]
+        [HttpGet("block")]
+        public async Task<IActionResult> GetAcountBlock(AcountBlockModelView model)
+        {
+            var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+
+            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed == Confirmed.approved)
+            {
+                var Acount = await userManager.FindByIdAsync(model.AcountId);
+                if (Acount != null)
+                {
+                    if (model.block)
+                        Acount.Confirmed = Confirmed.approved;
+                    else
+                        Acount.Confirmed = Confirmed.Reject;
+                    await userManager.UpdateAsync(Acount);
+                    return Ok(new
+                    {
+                        Acount.Id,
+                        Acount.UserName
+
+                    });
+                }
+                else return NotFound();
+            }
+
+
+            else return Unauthorized();
+
+        }
 
         [Authorize]
         [HttpPost("ChangPassword")]
@@ -602,7 +817,8 @@ namespace K_Api202001.ApiControler
             // var Name = User.FindFirst("Name")?.Value;
 
             var user = await userManager.FindByIdAsync(userid);
-            if (user != null && await userManager.CheckPasswordAsync(user, model.Password) && user.Confirmed==Confirmed.approved)
+            if (user == null) return Unauthorized();
+            if (user != null && await userManager.CheckPasswordAsync(user, model.Password) && user.Confirmed == Confirmed.approved)
             {
                 var Token = await userManager.GeneratePasswordResetTokenAsync(user);
                 var resetPassResult = await userManager.ResetPasswordAsync(user, Token, model.Newpassword);

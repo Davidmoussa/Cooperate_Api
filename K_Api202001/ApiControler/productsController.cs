@@ -19,6 +19,7 @@ namespace K_Api202001.ApiControler
     [ApiController]
     public class productsController : ControllerBase
     {
+        //category
         private readonly UserManager<UserIdentity> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly ApplicationDbContext _contect;
@@ -27,6 +28,9 @@ namespace K_Api202001.ApiControler
         private readonly string imgProdectPath = "";
         private readonly string PathIMG = "";
 
+
+        public float pageCount { get; set; }
+        public int itemCount = 20;
         public productsController(IConfiguration configuration, ApplicationDbContext db, UserManager<UserIdentity> _userManager, RoleManager<IdentityRole> _roleManager, SignInManager<UserIdentity> signInManager)
         {
             userManager = _userManager;
@@ -49,45 +53,14 @@ namespace K_Api202001.ApiControler
         //{
 
         //}
-
-
-        [HttpGet("ProductTypeId")]
-        public async Task<IActionResult> ProdecGetbyProductTypeId(int ProductTypeId)
+        [HttpGet]
+        public async Task<IActionResult> ProdecGet( int currentPage)
         {
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
-            if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved)
+       
+            if ( await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed == Confirmed.approved)
             {
-                var prodect = _contect.products.Where(i => i.ProductTypeId == ProductTypeId && i.SeallerId== user.Id&& i.Delete == false)
-                       .Include(i => i.Colors)
-                       .Include(i => i.sealler)
-                       .Include(i => i.sealler.UserIdentity)
-                       .Include(i => i.Form)
-                       .Include(i => i.Form)
-                       .Include(i => i.Img)
-                       .Select(i =>
-                       new
-                       {
-                           i.Id,
-                           i.Name,
-                           i.AName,
-                           i.price,
-                           i.Stock,
-                           i.StockCount,
-                           i.Timespent,
-                           ProductType = new { i.ProductType.Id, i.ProductType.Name, i.ProductType.AName },
-                        //   sealler = new { i.sealler.id, i.sealler.projectAName, i.sealler.projectName, i.sealler.ProJectTypeId, i.sealler.UserIdentity.Email, i.sealler.UserIdentity.PhoneNumber },
-                           Colors = i.Colors.Select(i => new { i.AColor, i.Id, i.Code, i.Color }).ToList(),
-                           Imgs = i.Img.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
-
-                       }
-
-                       ).ToList();
-                return Ok(prodect);
-            }
-           
-          else if ((await userManager.IsInRoleAsync(user, "User") || await userManager.IsInRoleAsync(user, "Adman")) && user?.Confirmed == Confirmed.approved)
-            {
-                var prodect = _contect.products.Where(i => i.ProductTypeId == ProductTypeId && i.sealler.UserIdentity.Confirmed == Confirmed.approved && i.Delete == false)
+                var prodect = _contect.products.Where(i =>  i.Delete == false)
                                       .Include(i => i.Colors)
                                       .Include(i => i.sealler)
                                       .Include(i => i.sealler.UserIdentity)
@@ -104,7 +77,7 @@ namespace K_Api202001.ApiControler
                                           i.Stock,
                                           i.StockCount,
                                           i.Timespent,
-                                          ProductType = new { i.ProductType.Id, i.ProductType.Name, i.ProductType.AName },
+                                          category = new { id = i.ProductType.Id, category = i.ProductType.Name, Acategory = i.ProductType.AName },
                                           sealler = new { i.sealler.id, i.sealler.projectAName, i.sealler.projectName, i.sealler.ProJectTypeId, i.sealler.UserIdentity.Email, i.sealler.UserIdentity.PhoneNumber },
                                           Colors = i.Colors.Select(i => new { i.AColor, i.Id, i.Code, i.Color }).ToList(),
                                           Imgs = i.Img.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
@@ -112,16 +85,199 @@ namespace K_Api202001.ApiControler
                                       }
 
                                       ).ToList();
-                return Ok(prodect);
+
+
+                // Pagenation
+
+                pageCount = (int)Math.Ceiling(decimal.Divide(prodect.Count, itemCount));
+                if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+                // End 
+
+                if (prodect.Count == 0) return NotFound();
+                else return Ok(new { itemCount, pageCount, currentPage, Data = prodect.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
+            }
+            else return Unauthorized();
+        }
+
+        [HttpGet("categoryId")]
+        public async Task<IActionResult> ProdecGetbyProductTypeId( int currentPage, int categoryId)
+        {
+            var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+            if (user == null) return Unauthorized();
+            if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved)
+            {
+                var prodect = _contect.products.Where(i => i.ProductTypeId == categoryId && i.SeallerId== user.Id&& i.Delete == false)
+                       .Include(i => i.Colors)
+                       .Include(i => i.sealler)
+                       .Include(i => i.sealler.UserIdentity)
+                       .Include(i => i.Form)
+                       .Include(i => i.Form)
+                       .Include(i => i.Img)
+                       .Select(i =>
+                       new
+                       {
+                           i.Id,
+                           i.Name,
+                           i.AName,
+                           i.price,
+                           i.Stock,
+                           i.StockCount,
+                           i.Timespent,
+                           category = new { id = i.ProductType.Id, category = i.ProductType.Name, Acategory = i.ProductType.AName },
+                           //   sealler = new { i.sealler.id, i.sealler.projectAName, i.sealler.projectName, i.sealler.ProJectTypeId, i.sealler.UserIdentity.Email, i.sealler.UserIdentity.PhoneNumber },
+                           Colors = i.Colors.Select(i => new { i.AColor, i.Id, i.Code, i.Color }).ToList(),
+                           Imgs = i.Img.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
+
+                       }
+
+                       ).ToList();
+                // Pagenation
+
+                pageCount = (int)Math.Ceiling(decimal.Divide(prodect.Count, itemCount));
+                if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+                // End 
+
+                if (prodect.Count == 0) return NotFound();
+                else return Ok(new { itemCount, pageCount, currentPage, Data = prodect.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
+            }
+           
+          else if ((await userManager.IsInRoleAsync(user, "User") || await userManager.IsInRoleAsync(user, "Adman")) && user?.Confirmed == Confirmed.approved)
+            {
+                var prodect = _contect.products.Where(i => i.ProductTypeId == categoryId && i.sealler.UserIdentity.Confirmed == Confirmed.approved && i.Delete == false)
+                                      .Include(i => i.Colors)
+                                      .Include(i => i.sealler)
+                                      .Include(i => i.sealler.UserIdentity)
+                                      .Include(i => i.Form)
+                                      .Include(i => i.Form)
+                                      .Include(i => i.Img)
+                                      .Select(i =>
+                                      new
+                                      {
+                                          i.Id,
+                                          i.Name,
+                                          i.AName,
+                                          i.price,
+                                          i.Stock,
+                                          i.StockCount,
+                                          i.Timespent,
+                                          category = new { id = i.ProductType.Id, category = i.ProductType.Name, Acategory = i.ProductType.AName },
+                                          sealler = new { i.sealler.id, i.sealler.projectAName, i.sealler.projectName, i.sealler.ProJectTypeId, i.sealler.UserIdentity.Email, i.sealler.UserIdentity.PhoneNumber },
+                                          Colors = i.Colors.Select(i => new { i.AColor, i.Id, i.Code, i.Color }).ToList(),
+                                          Imgs = i.Img.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
+
+                                      }
+
+                                      ).ToList();
+                // Pagenation
+
+                pageCount = (int)Math.Ceiling(decimal.Divide(prodect.Count, itemCount));
+                if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+                // End 
+
+                if (prodect.Count == 0) return NotFound();
+                else return Ok(new { itemCount, pageCount, currentPage, Data = prodect.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
             }
             else return Unauthorized();
             }
+
+        [HttpGet("categoryId/{search}")]
+        public async Task<IActionResult> search(int currentPage, string search)
+        {
+            var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+            if (user == null) return Unauthorized();
+            if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved)
+            {
+                var prodect = _contect.products.Where(i => (
+                i.Name==search||
+                i.AName==search
+             
+                ) && i.SeallerId == user.Id && i.Delete == false)
+                       .Include(i => i.Colors)
+                       .Include(i => i.sealler)
+                       .Include(i => i.sealler.UserIdentity)
+                       .Include(i => i.Form)
+                       .Include(i => i.Form)
+                       .Include(i => i.Img)
+                       .Select(i =>
+                       new
+                       {
+                           i.Id,
+                           i.Name,
+                           i.AName,
+                           i.price,
+                           i.Stock,
+                           i.StockCount,
+                           i.Timespent,
+                           category = new { id = i.ProductType.Id, category = i.ProductType.Name, Acategory = i.ProductType.AName },
+                           //   sealler = new { i.sealler.id, i.sealler.projectAName, i.sealler.projectName, i.sealler.ProJectTypeId, i.sealler.UserIdentity.Email, i.sealler.UserIdentity.PhoneNumber },
+                           Colors = i.Colors.Select(i => new { i.AColor, i.Id, i.Code, i.Color }).ToList(),
+                           Imgs = i.Img.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
+
+                       }
+
+                       ).ToList();
+                // Pagenation
+
+                pageCount = (int)Math.Ceiling(decimal.Divide(prodect.Count, itemCount));
+                if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+                // End 
+
+                if (prodect.Count == 0) return NotFound();
+                else return Ok(new { itemCount, pageCount, currentPage, Data = prodect.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
+            }
+
+            else if ((await userManager.IsInRoleAsync(user, "User") || await userManager.IsInRoleAsync(user, "Adman")) && user?.Confirmed == Confirmed.approved)
+            {
+                var prodect = _contect.products.Where(i =>(
+                i.Name == search||
+                i.AName==search||
+                i.SeallerId==search||
+                i.sealler.projectAName==search||
+                i.sealler.projectName==search||
+                i.sealler.UserIdentity.PhoneNumber.ToString()==search
+                ) && i.sealler.UserIdentity.Confirmed == Confirmed.approved && i.Delete == false)
+                                      .Include(i => i.Colors)
+                                      .Include(i => i.sealler)
+                                      .Include(i => i.sealler.UserIdentity)
+                                      .Include(i => i.Form)
+                                      .Include(i => i.Form)
+                                      .Include(i => i.Img)
+                                      .Select(i =>
+                                      new
+                                      {
+                                          i.Id,
+                                          i.Name,
+                                          i.AName,
+                                          i.price,
+                                          i.Stock,
+                                          i.StockCount,
+                                          i.Timespent,
+                                          category = new { id = i.ProductType.Id, category = i.ProductType.Name, Acategory = i.ProductType.AName },
+                                          sealler = new { i.sealler.id, i.sealler.projectAName, i.sealler.projectName, i.sealler.ProJectTypeId, i.sealler.UserIdentity.Email, i.sealler.UserIdentity.PhoneNumber },
+                                          Colors = i.Colors.Select(i => new { i.AColor, i.Id, i.Code, i.Color }).ToList(),
+                                          Imgs = i.Img.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
+
+                                      }
+
+                                      ).ToList();
+                // Pagenation
+
+                pageCount = (int)Math.Ceiling(decimal.Divide(prodect.Count, itemCount));
+                if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+                // End 
+
+                if (prodect.Count == 0) return NotFound();
+                else return Ok(new { itemCount, pageCount, currentPage, Data = prodect.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
+            }
+            else return Unauthorized();
+        }
 
         [HttpGet("Id")]
         public async Task<IActionResult> ProdecGetbyId(int Id)
         {
           
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+            if (user == null) return Unauthorized();
             if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved)
             {
 
@@ -142,8 +298,8 @@ namespace K_Api202001.ApiControler
                            i.Stock,
                            i.StockCount,
                            i.Timespent,
-                           ProductType = new { i.ProductType.Id, i.ProductType.Name, i.ProductType.AName },
-                          // sealler = new { i.sealler.id, i.sealler.projectAName, i.sealler.projectName, i.sealler.ProJectTypeId, i.sealler.UserIdentity.Email, i.sealler.UserIdentity.PhoneNumber },
+                           category = new { id = i.ProductType.Id, category = i.ProductType.Name, Acategory = i.ProductType.AName },
+                           // sealler = new { i.sealler.id, i.sealler.projectAName, i.sealler.projectName, i.sealler.ProJectTypeId, i.sealler.UserIdentity.Email, i.sealler.UserIdentity.PhoneNumber },
                            Colors = i.Colors.Select(i => new { i.AColor, i.Id, i.Code, i.Color }).ToList(),
                            Imgs = i.Img.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
                            Forms = i.Form.Select(i => new { i.FormId, i.value, i.Form.AName, i.Form.Name })
@@ -171,7 +327,7 @@ namespace K_Api202001.ApiControler
                           i.Stock,
                           i.StockCount,
                           i.Timespent,
-                          ProductType = new { i.ProductType.Id, i.ProductType.Name, i.ProductType.AName },
+                          category = new { id = i.ProductType.Id, category = i.ProductType.Name, Acategory = i.ProductType.AName },
                           sealler = new { i.sealler.id, i.sealler.projectAName, i.sealler.projectName, i.sealler.ProJectTypeId, i.sealler.UserIdentity.Email, i.sealler.UserIdentity.PhoneNumber },
                           Colors = i.Colors.Select(i => new { i.AColor, i.Id, i.Code, i.Color }).ToList(),
                           Imgs = i.Img.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
@@ -196,6 +352,7 @@ namespace K_Api202001.ApiControler
         {
 
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+            if (user == null) return Unauthorized();
             if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved)
             {
 
@@ -233,6 +390,7 @@ namespace K_Api202001.ApiControler
            
 
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+            if (user == null) return Unauthorized();
             if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved)
             {
                 try
@@ -251,7 +409,7 @@ namespace K_Api202001.ApiControler
                     product.description = model.description;
                     product.Stock = model.Stock;
                     product.price = model.price;
-                    product.ProductTypeId = model.ProductTypeid;
+                    product.ProductTypeId = model.categoryId;
                     product.StockCount = model.Stock == true ? model.StockCount : 0;                   
                     product.Timespent = model.Timespent;
                   //  _contect.SaveChanges();
@@ -341,7 +499,7 @@ namespace K_Api202001.ApiControler
                         product.Stock,
                         product.Timespent,
                         product.SeallerId,
-                        product.ProductTypeId,
+                        category= product.ProductTypeId,
                         Forms = product.Form.Select(i => new { i.FormId, i.Form.AName, i.Form.Name, i.value }).ToList(),
                         Colors = product.Colors.Select(i => new { i.Id, i.AColor, i.Color, i.Code }).ToList(),
                         imgs = product.Img.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
@@ -375,6 +533,7 @@ namespace K_Api202001.ApiControler
           //  Img.Add(model.Img1);
 
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+            if (user == null) return Unauthorized();
             if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved)
             {
                 try
@@ -387,7 +546,7 @@ namespace K_Api202001.ApiControler
                         description = model.description,
                         Stock = model.Stock,
                         price = model.price,
-                        ProductTypeId = model.ProductTypeid,
+                        ProductTypeId = model.categoryId,
                         StockCount = model.Stock == true ? model.StockCount : 0,
                         SeallerId = user.Id,
                         Timespent = model.Timespent,
@@ -427,7 +586,7 @@ namespace K_Api202001.ApiControler
                         product.Stock,
                         product.Timespent,
                         product.SeallerId,
-                        product.ProductTypeId,
+                        category=  product.ProductTypeId,
                         Forms = product.Form.Select(i => new { i.FormId, i.Form.AName, i.Form.Name, i.value }).ToList(),
                         Colors= product.Colors.Select(i => new { i.Id, i.AColor, i.Color, i.Code }).ToList(),
                         imgs= productIMg.Select(i=>new { i.Id, img= imgProdectPath + i.img}).ToList(),

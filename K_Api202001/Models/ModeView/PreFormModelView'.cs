@@ -16,6 +16,7 @@ namespace K_Api202001.Models.ModeView
         public string Name { get; set; }
         public string AName { get; set; }
         public bool? Required { get; set; }
+        public Type Type { get; set; }
 
     }
 }
