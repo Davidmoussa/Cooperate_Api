@@ -25,8 +25,8 @@ namespace K_Api202001.ApiControler
         }
 
         // GET: api/zones
-        [HttpGet("/{CityId}")]
-        public async Task<ActionResult<IEnumerable<zone>>> GetZones( int currentPage  ,  int CityId)
+        [HttpGet("City/CityId")]
+        public async Task<IActionResult> GetZones(  int CityId, int currentPage)
         {
             var Zones= _context.Zones.Where(i=>i.Cityid== CityId).Select(i=>new { i.id, i.Name, i.AName ,i.Cityid}).ToList();
 

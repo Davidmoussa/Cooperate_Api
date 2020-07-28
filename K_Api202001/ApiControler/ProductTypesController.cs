@@ -13,13 +13,13 @@ namespace K_Api202001.ApiControler
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductTypesController : ControllerBase
+    public class categoryController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
         public float pageCount { get; set; }
         public int itemCount = 20;
-        public ProductTypesController(ApplicationDbContext context)
+        public categoryController(ApplicationDbContext context)
         {
             _context = context;
         }

@@ -29,7 +29,7 @@ namespace K_Api202001.ApiControler
             _context = context;
         }
 
-      [HttpGet("/{Id}")]
+      [HttpGet("/{Id:int}")]
         public async Task<IActionResult> GetReportById  (int Id)
         {
             
