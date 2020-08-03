@@ -20,5 +20,29 @@ namespace K_Api202001.Models
 
     }
 
+    public class ProJectTypeModelView
+    {
+       
+        [Required]
+        public string Name { get; set; }
+        [Required]
+        public string AName { get; set; }
+
+        public virtual ICollection<FormModelView> ProForm { get; set; }
+
+
+    }
+
+    public class FormModelView
+    {
+       
+
+        public string Name { get; set; }
+        public string AName { get; set; }
+        public bool? Required { get; set; }
+        public Type Type { get; set; }
+
+    }
+
 
 }

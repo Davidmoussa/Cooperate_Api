@@ -86,12 +86,39 @@ namespace K_Api202001.ApiControler
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult<ProJectType>> PostProJectType(ProJectType proJectType)
+        public async Task<IActionResult> PostProJectType(ProJectTypeModelView Model)
         {
-            _context.ProJectType.Add(proJectType);
-            await _context.SaveChangesAsync();
+            var ProJectType = new ProJectType();
+            ProJectType.AName = Model.AName;
+            ProJectType.Name = Model.Name;
 
-            return CreatedAtAction("GetProJectType", new { id = proJectType.id }, proJectType);
+            _context.ProJectType.Add(ProJectType);
+            _context.SaveChanges();
+            _context.ProForm.AddRange(Model.ProForm.Select(i => new ProForm() { 
+            
+                Name= i.Name,
+                AName= i.AName,
+                Type= i.Type,
+                Required= i.Required,
+                ProJectTypeId= ProJectType.id
+            }));
+
+
+
+            _context.SaveChanges();
+           
+
+
+
+
+
+            return Ok( new {
+
+                ProJectType.id,
+                ProJectType.Name,
+                ProJectType.AName,
+                ProForm=  ProJectType.ProForm.Select(i=> new { i.AName, i.Id, i.Name, i.Type,i.Required }).ToList(),
+            });
         }
 
         // DELETE: api/ProJectTypes/5
