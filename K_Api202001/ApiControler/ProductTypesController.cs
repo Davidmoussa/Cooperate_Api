@@ -29,7 +29,7 @@ namespace K_Api202001.ApiControler
         public async Task<IActionResult> GetProduc( int currentPage)
         {
             var ProductType = _context.ProductType
-                .Include(i => i.ProForm)
+               
                 .Include(i => i.ProJectType)
                 .Select(i => new
                 {
@@ -38,7 +38,7 @@ namespace K_Api202001.ApiControler
                     i.Name,
 
                     category = new { id = i.ProJectType.id, category = i.ProJectType.Name, Acategory = i.ProJectType.AName },
-                    Form = i.ProForm.Select(i => new { i.Id, i.Name, i.AName, i.Required }).ToList(),
+                   
                 }).ToList();
 
             // Pagenation
@@ -55,7 +55,7 @@ namespace K_Api202001.ApiControler
         public async Task<IActionResult> GetProductType(int Id)
         {
            var ProductType=_context.ProductType
-                .Include(i=>i.ProForm)
+               
                 .Include(i=>i.ProJectType)
                 .Select(i => new
             {
@@ -64,7 +64,7 @@ namespace K_Api202001.ApiControler
                 i.Name,
 
                     category = new { id = i.ProJectType.id, category = i.ProJectType.Name, Acategory = i.ProJectType.AName },
-                    Form = i.ProForm.Select(i => new { i.Id, i.Name, i.AName, i.Required }).ToList(),
+                  
             }).SingleOrDefault(i=>i.Id==Id);
             if (ProductType == null) return NotFound();
             else return Ok(ProductType);

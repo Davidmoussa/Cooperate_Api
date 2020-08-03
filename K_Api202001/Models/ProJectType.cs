@@ -15,7 +15,10 @@ namespace K_Api202001.Models
         [Required]
         public string AName { get; set; }
 
-        
+        public virtual ICollection<ProForm> ProForm { get; set; }
+
 
     }
+
+
 }

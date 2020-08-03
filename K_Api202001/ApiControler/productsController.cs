@@ -94,7 +94,44 @@ namespace K_Api202001.ApiControler
                 // End 
 
                 if (prodect.Count == 0) return NotFound();
-                else return Ok(new { itemCount, pageCount, currentPage, Data = prodect.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
+                else return Ok(new { itemCount= prodect.Count, pageCount, currentPage, Data = prodect.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
+            }
+            else if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved)
+            {
+                var prodect = _contect.products.Where(i => i.Delete == false && i.SeallerId==user.Id)
+                                      .Include(i => i.Colors)
+                                     
+                                      .Include(i => i.Form)
+                                      .Include(i => i.Form)
+                                      .Include(i => i.Img)
+                                      .Select(i =>
+                                      new
+                                      {
+                                          i.Id,
+                                          i.Name,
+                                          i.AName,
+                                          i.price,
+                                          i.Stock,
+                                          i.StockCount,
+                                          i.Timespent,
+                                          category = new { id = i.ProductType.Id, category = i.ProductType.Name, Acategory = i.ProductType.AName },
+                                        
+                                          Colors = i.Colors.Select(i => new { i.AColor, i.Id, i.Code, i.Color }).ToList(),
+                                          Imgs = i.Img.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
+
+                                      }
+
+                                      ).ToList();
+
+
+                // Pagenation
+
+                pageCount = (int)Math.Ceiling(decimal.Divide(prodect.Count, itemCount));
+                if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+                // End 
+
+                if (prodect.Count == 0) return NotFound();
+                else return Ok(new { itemCount= prodect.Count, pageCount, currentPage, Data = prodect.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
             }
             else return Unauthorized();
         }
@@ -196,7 +233,7 @@ namespace K_Api202001.ApiControler
                        .Include(i => i.sealler)
                        .Include(i => i.sealler.UserIdentity)
                        .Include(i => i.Form)
-                       .Include(i => i.Form)
+                       
                        .Include(i => i.Img)
                        .Select(i =>
                        new
@@ -212,6 +249,7 @@ namespace K_Api202001.ApiControler
                            //   sealler = new { i.sealler.id, i.sealler.projectAName, i.sealler.projectName, i.sealler.ProJectTypeId, i.sealler.UserIdentity.Email, i.sealler.UserIdentity.PhoneNumber },
                            Colors = i.Colors.Select(i => new { i.AColor, i.Id, i.Code, i.Color }).ToList(),
                            Imgs = i.Img.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
+                           Form =i.Form.Select(i=>new { i.FormId,i.value , i.Form.AName, i.Form.Name ,i.Form.Type, i.Form.Required  })
 
                        }
 
@@ -223,7 +261,7 @@ namespace K_Api202001.ApiControler
                 // End 
 
                 if (prodect.Count == 0) return NotFound();
-                else return Ok(new { itemCount, pageCount, currentPage, Data = prodect.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
+                else return Ok(new { itemCount = prodect.Count, pageCount, currentPage, Data = prodect.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
             }
 
             else if ((await userManager.IsInRoleAsync(user, "User") || await userManager.IsInRoleAsync(user, "Adman")) && user?.Confirmed == Confirmed.approved)
@@ -256,7 +294,7 @@ namespace K_Api202001.ApiControler
                                           sealler = new { i.sealler.id, i.sealler.projectAName, i.sealler.projectName, i.sealler.ProJectTypeId, i.sealler.UserIdentity.Email, i.sealler.UserIdentity.PhoneNumber },
                                           Colors = i.Colors.Select(i => new { i.AColor, i.Id, i.Code, i.Color }).ToList(),
                                           Imgs = i.Img.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
-
+                                          Form = i.Form.Select(i => new { i.FormId, i.value, i.Form.AName, i.Form.Name, i.Form.Type, i.Form.Required })
                                       }
 
                                       ).ToList();
@@ -267,7 +305,7 @@ namespace K_Api202001.ApiControler
                 // End 
 
                 if (prodect.Count == 0) return NotFound();
-                else return Ok(new { itemCount, pageCount, currentPage, Data = prodect.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
+                else return Ok(new { itemCount= prodect.Count, pageCount, currentPage, Data = prodect.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
             }
             else return Unauthorized();
         }
@@ -302,7 +340,7 @@ namespace K_Api202001.ApiControler
                            // sealler = new { i.sealler.id, i.sealler.projectAName, i.sealler.projectName, i.sealler.ProJectTypeId, i.sealler.UserIdentity.Email, i.sealler.UserIdentity.PhoneNumber },
                            Colors = i.Colors.Select(i => new { i.AColor, i.Id, i.Code, i.Color }).ToList(),
                            Imgs = i.Img.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
-                           Forms = i.Form.Select(i => new { i.FormId, i.value, i.Form.AName, i.Form.Name })
+                           Form = i.Form.Select(i => new { i.FormId, i.value, i.Form.AName, i.Form.Name, i.Form.Type, i.Form.Required })
                        }
 
                        ).SingleOrDefault();
@@ -331,7 +369,7 @@ namespace K_Api202001.ApiControler
                           sealler = new { i.sealler.id, i.sealler.projectAName, i.sealler.projectName, i.sealler.ProJectTypeId, i.sealler.UserIdentity.Email, i.sealler.UserIdentity.PhoneNumber },
                           Colors = i.Colors.Select(i => new { i.AColor, i.Id, i.Code, i.Color }).ToList(),
                           Imgs = i.Img.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
-                          Forms = i.Form.Select(i => new { i.FormId, i.value, i.Form.AName, i.Form.Name })
+                          Form = i.Form.Select(i => new { i.FormId, i.value, i.Form.AName, i.Form.Name, i.Form.Type, i.Form.Required })
                       }
 
                       ).SingleOrDefault();

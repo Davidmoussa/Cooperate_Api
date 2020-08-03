@@ -17,23 +17,17 @@ namespace K_Api202001.ApiControler
     {
         private readonly ApplicationDbContext _context;
 
+
         public ProFormsController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/ProForms
-        //[HttpGet]
-        //public async Task<ActionResult<IEnumerable<ProForm>>> GetProForm()
-        //{
-        //    return await _context.ProForm.ToListAsync();
-        //}
-
-        // GET: api/ProForms/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetProForm(int id)
+     
+        [HttpGet("{ProJectTypeId}")]
+        public async Task<IActionResult> GetProForm(int ProJectTypeId)
         {
-            var form = _context.ProForm.Where(i => i.ProductTypeId ==id) .ToList();
+            var form = _context.ProForm.Where(i => i.ProJectTypeId == ProJectTypeId).Select(i=>new { i.Id , i.Name, i.AName, i.Required ,i.Type}) .ToList();
 
             return Ok (form);
         }
@@ -53,7 +47,7 @@ namespace K_Api202001.ApiControler
                 form.AName = proForm.AName;
                 form.Required = proForm.Required;
                 form.Type = proForm.Type;
-                form.ProductTypeId = proForm.ProductTypeId;
+                form.ProJectTypeId = proForm.ProJectTypeId;
             }
             _context.SaveChanges();
 
@@ -62,7 +56,7 @@ namespace K_Api202001.ApiControler
                 form.Id,
                 form.Name,
                 form.AName,
-                form.ProductType,
+                form.ProJectTypeId,
                 proForm.Required,
                 proForm.Type
             }) ;
@@ -76,7 +70,7 @@ namespace K_Api202001.ApiControler
         public async Task<ActionResult<ProForm>> PostProForm(PreFormModelView Model)
         {
 
-            var proForm = new ProForm() { Name = Model.Name, AName = Model.AName, ProductTypeId = Model.ProductTypeId,Required=Model.Required ,Type=Model.Type};
+            var proForm = new ProForm() { Name = Model.Name, AName = Model.AName, ProJectTypeId = Model.ProJectTypeId, Required=Model.Required ,Type=Model.Type};
 
 
             _context.ProForm.Add(proForm);
@@ -87,7 +81,7 @@ namespace K_Api202001.ApiControler
                 proForm.Id,
                 proForm.Name,
                 proForm.AName,
-                proForm.ProductType,
+                proForm.ProJectTypeId,
                 proForm.Required,
                 proForm.Type
             });

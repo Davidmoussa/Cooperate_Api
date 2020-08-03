@@ -10,7 +10,7 @@ namespace K_Api202001.Models.ModeView
     {
 
         [Required]
-        public int ProductTypeId { get; set; }
+        public int ProJectTypeId { get; set; }
         public int? Id { get; set; }
         [Required]
         public string Name { get; set; }

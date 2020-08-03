@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using K_Api202001.Data;
+using K_Api202001.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using K_Api202001.Data;
-using K_Api202001.Models;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace K_Api202001.ApiControler
 {

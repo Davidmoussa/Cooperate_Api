@@ -597,7 +597,44 @@ namespace K_Api202001.ApiControler
                     });
 
             }
-            return Unauthorized("Token not Sealler");
+            else if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed == Confirmed.approved)
+            {
+                var order = _contect.Orders.SingleOrDefault(i => i.Id == model.OrderId);
+                if (order == null) return NotFound();
+                if (model.orderStatus != orderStatus.Ordered && model.orderStatus != orderStatus.Receipt)
+                {
+                    order.orderStatus = model.orderStatus;
+                    _contect.SaveChanges();
+                }
+
+                return Ok(
+                    new
+                    {
+                        order.Id,
+                        order.ProductName,
+                        order.ProductAName,
+                        order.Productprice,
+
+                        order.description,
+
+                        ProductForm = order.Form.Select(i => new { i.id, i.AKey, i.Key, i.value }).ToList(),
+                        order.CodeColor,
+                        order.ANameColor,
+                        order.NameColor,
+                        order.orderStatus,
+                        order.Cuantity,
+                        order.ProductpriceTotal,
+                        order.Date,
+                        order.Timespent,
+                        order.TimespentEnd,
+                        order.UserAddress,
+                        order.otherPhoneNo,
+
+                    });
+
+            }else
+
+            return Unauthorized();
 
         }
 
