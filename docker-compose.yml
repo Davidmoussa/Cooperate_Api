@@ -32,7 +32,7 @@ services:
       - PGID=1000
       - TZ=Europe/London
       - URL=api.egypt-youth.com
-      - SUBDOMAINS=www,Api
+      - SUBDOMAINS=www,
       - VALIDATION=http
       - STAGING=true #false #optional
     volumes:
