@@ -38,7 +38,7 @@ namespace K_Api202001.ApiControler
             _contect = db;
             _configuration = configuration;
             PathIMG = configuration["IMG:PathIMG"];
-            imgProdectPath = PathIMG + "Prodect//";
+            imgProdectPath = PathIMG + "product/";
 
             //_SmtpSettings = new SmtpSettings();
             //_SmtpSettings.Password = configuration["Smtp:Password"];
@@ -538,7 +538,7 @@ namespace K_Api202001.ApiControler
                         product.Timespent,
                         product.SeallerId,
                         category= product.ProductTypeId,
-                        Forms = product.Form.Select(i => new { i.FormId, i.Form.AName, i.Form.Name, i.value }).ToList(),
+                        Forms = product.Form.Select(i => new { i.FormId, i.value }).ToList(),
                         Colors = product.Colors.Select(i => new { i.Id, i.AColor, i.Color, i.Code }).ToList(),
                         imgs = product.Img.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
 
@@ -625,7 +625,7 @@ namespace K_Api202001.ApiControler
                         product.Timespent,
                         product.SeallerId,
                         category=  product.ProductTypeId,
-                        Forms = product.Form.Select(i => new { i.FormId, i.Form.AName, i.Form.Name, i.value }).ToList(),
+                        Forms = product.Form.Select(i => new { i.FormId, i.value }).ToList(),
                         Colors= product.Colors.Select(i => new { i.Id, i.AColor, i.Color, i.Code }).ToList(),
                         imgs= productIMg.Select(i=>new { i.Id, img= imgProdectPath + i.img}).ToList(),
 
