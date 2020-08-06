@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -11,6 +12,7 @@ namespace K_Api202001.Models
         [Key]
         public int id { get; set; }
         [Required]
+        
         public string Name { get; set; }
         [Required]
         public string AName { get; set; }
@@ -22,7 +24,7 @@ namespace K_Api202001.Models
 
     public class ProJectTypeModelView
     {
-       
+        
         [Required]
         public string Name { get; set; }
         [Required]

@@ -3,14 +3,16 @@ using System;
 using K_Api202001.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace K_Api202001.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200806183808_deletecategre")]
+    partial class deletecategre
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -33,29 +35,6 @@ namespace K_Api202001.Migrations
                     b.HasKey("id");
 
                     b.ToTable("Cities");
-                });
-
-            modelBuilder.Entity("K_Api202001.Models.News", b =>
-                {
-                    b.Property<int>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<int>("ADescription")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ATitel")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Description")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Titel")
-                        .HasColumnType("int");
-
-                    b.HasKey("id");
-
-                    b.ToTable("News");
                 });
 
             modelBuilder.Entity("K_Api202001.Models.Order", b =>

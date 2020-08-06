@@ -64,7 +64,18 @@ namespace K_Api202001
                  }
                 ).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
+            services.AddCors(options =>
+           options.AddPolicy("AllowOrigin",
+           builder =>
+           {
+               builder
+                   // .AllowAnyOrigin()
+                   .AllowAnyMethod()
+                   .AllowAnyHeader()
+                   .AllowCredentials()
 
+                  .WithOrigins("https://localhost:4200");
+           }));
 
 
             //token Jwt
@@ -160,7 +171,7 @@ namespace K_Api202001
             });
             app.UseStaticFiles();
             app.UseRouting();
-
+            app.UseCors("AllowOrigin");
             app.UseAuthentication();
             app.UseAuthorization();
 
@@ -204,6 +215,7 @@ namespace K_Api202001
             var roleManager = serviceProvider.GetService<RoleManager<IdentityRole>>();
 
             // ENsure database created and is up to date
+            await context.Database.EnsureDeletedAsync();
             await context.Database.MigrateAsync();
 
             // Ensure that we have an admin role

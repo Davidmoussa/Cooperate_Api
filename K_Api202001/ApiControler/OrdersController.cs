@@ -497,8 +497,11 @@ namespace K_Api202001.ApiControler
                 Order.Productprice = Prodect.price;
                 Order.Timespent = Prodect.Timespent;
                 Order.Cuantity = model.Cuantity;
-                foreach (var item in Prodect.Form)
+                var fromprodect = _contect.productFormsetup.Where(i => i.ProductId == Prodect.Id).Include(i => i.Form).ToList();
+                Order.Form = new List<OrderForm>();
+                foreach (var item in fromprodect)
                 {
+                    
                     Order.Form.Add(new OrderForm() { Key = item.Form.Name, AKey = item.Form.AName, value = item.value });
                 }
 

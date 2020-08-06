@@ -43,6 +43,10 @@ namespace K_Api202001.Data
           .HasOne(pt => pt.product)
           .WithMany(p => p.Order)
           .HasForeignKey(pt => pt.ProductId);
+
+            builder.Entity<ProJectType>(entity => {
+                entity.HasIndex(e => new { e.AName,e.Name}).IsUnique();
+            });
         }
 
         public virtual DbSet<User> Users { get; set; }
@@ -54,13 +58,14 @@ namespace K_Api202001.Data
         //product
         public virtual DbSet<product> products { get; set; }
         public virtual DbSet<ProForm> ProForm { get; set; }
-        public virtual DbSet<ProductType> ProductType { get; set; }
+        //public virtual DbSet<ProductType> ProductType { get; set; }
         public virtual DbSet<productForm> productFormsetup { get; set; }
         public virtual DbSet<productIMg> productIMg { get; set; }
         public virtual DbSet<productColor> productColor { get; set; }
         public virtual DbSet<Order> Orders { get; set; }
         public virtual DbSet<ReceiptCode> ReceiptCode { get; set; }
         public virtual DbSet<Report> Reports { get; set; }
+        public virtual DbSet<News> News { get; set; }
 
 
 

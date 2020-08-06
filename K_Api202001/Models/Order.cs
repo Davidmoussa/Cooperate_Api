@@ -34,6 +34,7 @@ namespace K_Api202001.Models
         public string ANameColor { get; set; }
         public string NameColor { get; set; }
         public string CodeColor { get; set; }
+        public int category { get; set; }
 
         [ForeignKey("product")]
         public int? ProductId { get; set; }
@@ -79,9 +80,9 @@ namespace K_Api202001.Models
         public string Key { get; set; }
         public string AKey { get; set; }
         public string  value { get; set; }
-        [ForeignKey("product")]
-        public int ProductId { get; set; }
-        public virtual product product { get; set; }
+        [ForeignKey("Order")]
+        public int orderId { get; set; }
+        public virtual Order Order { get; set; }
     }
 
     public class ReceiptCode

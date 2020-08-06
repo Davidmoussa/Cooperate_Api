@@ -83,20 +83,56 @@ namespace K_Api202001.ApiControler
                         await userManager.AddToRoleAsync(User, "User");
                         _contect.Users.Add(user);
                         _contect.SaveChanges();
-                        return Ok(new
+
+                        //get Token :)
+                        var claim = new[]
+                         {
+                        new Claim("Id", User.Id),
+
+                        new Claim("Rolas",userManager.GetRolesAsync(User).Result.FirstOrDefault()) };
+                        var signinKey = new SymmetricSecurityKey( Encoding.UTF8.GetBytes(_configuration["Jwt:SigningKey"]));
+
+                        int expiryInMinutes = Convert.ToInt32(_configuration["Jwt:ExpiryInHouer"]);
+
+                        var token = new JwtSecurityToken(
+                               claims: claim,
+                          issuer: _configuration["Jwt:Site"],
+                          audience: _configuration["Jwt:Site"],
+                          expires: DateTime.UtcNow.AddHours(expiryInMinutes),
+                          signingCredentials: new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256)
+                        );
+
+                        /// code conform 
+                        var Code = new Random().Next(1234, 9999);
+                        var UserCodeConfierm = new UserCodeConfierm()
                         {
-                            User.Id,
-                            User.UserName,
-                            User.PhoneNumber,
-                            User.Confirmed,
-                            user.Name,
-                            user.AName,
+                            ExperdDate = DateTime.Now.AddMinutes(10),
+                            UserId = user.id,
+                            Code = Code.ToString(),
+                            Type = Codetype.PasswordUser
+                        };
+                        _contect.UserCodeConfierm.Add(UserCodeConfierm);
+                        _contect.SaveChanges();
 
-                        });
+                        AlertNotifiction.SendEmail(user.UserIdentity.Email, " Conform Account", _SmtpSettings, Code.ToString());
+
+                        return Ok(new
+                            {
+                                token = new JwtSecurityTokenHandler().WriteToken(token),
+                                expiration = token.ValidTo,
+                                user.id,
+                                user.Name,
+                                user.AName,
+                                user.UserIdentity.Email,
+                                user.UserIdentity.PhoneNumber,
+                                Roles = userManager.GetRolesAsync(User).Result.FirstOrDefault()
+
+
+                            });
 
 
 
-                    }
+                        }
                     else { return BadRequest(); }
                 }
                 catch (Exception e)
@@ -113,7 +149,7 @@ namespace K_Api202001.ApiControler
         public async Task<IActionResult> GetConformUser(string Email)
         {
             var user = await userManager.FindByNameAsync(Email);
-            if (await userManager.IsInRoleAsync(user, "User"))
+            if (await userManager.IsInRoleAsync(user, "User")&& user.Confirmed != Confirmed.block)
             {
                 var Code = new Random().Next(1234, 9999);
                 var UserCode = _contect.UserCodeConfierm.SingleOrDefault(i => i.UserId == user.Id && i.Type == Codetype.PasswordUser);
@@ -155,7 +191,7 @@ namespace K_Api202001.ApiControler
                 if (User != null)
                 {
 
-                    if (await userManager.IsInRoleAsync(User, "User") && User.Confirmed != Confirmed.Reject)
+                    if (await userManager.IsInRoleAsync(User, "User") && User.Confirmed != Confirmed.block)
                     {
                         var Code = _contect.UserCodeConfierm.SingleOrDefault(i => i.UserId == User.Id && i.Code == model.Code && i.ExperdDate >= DateTime.Now);
                         if (Code != null)
@@ -228,7 +264,7 @@ namespace K_Api202001.ApiControler
 
                 if (Logger != null)
                 {
-                    if (await userManager.IsInRoleAsync(Logger, "User") && Logger.Confirmed == Confirmed.approved)
+                    if (await userManager.IsInRoleAsync(Logger, "User") && Logger.Confirmed != Confirmed.block)
                     {
                         return Ok();
                     }
@@ -404,7 +440,7 @@ namespace K_Api202001.ApiControler
         {
             var user = await userManager.FindByNameAsync(model.UserName);
             if (user == null) return BadRequest(new { massage = "login Name Not Match ", Amassage = "" });
-            if (user != null && await userManager.CheckPasswordAsync(user, model.Password) && user.Confirmed == Confirmed.approved)
+            if (user != null && await userManager.CheckPasswordAsync(user, model.Password) )
             {
 
                 var claim = new[] {
@@ -425,7 +461,7 @@ namespace K_Api202001.ApiControler
                   signingCredentials: new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256)
                 );
 
-                if (await userManager.IsInRoleAsync(user, "User"))
+                if (await userManager.IsInRoleAsync(user, "User") &&user.Confirmed!=Confirmed.block)
                 {
                     var User = _contect.Users.Include(i => i.UserIdentity).SingleOrDefault(i => i.id == user.Id);
                     if (User != null)
@@ -446,7 +482,7 @@ namespace K_Api202001.ApiControler
                     }
                     else return Unauthorized();
                 }
-                else if (await userManager.IsInRoleAsync(user, "Sealler"))
+                else if (await userManager.IsInRoleAsync(user, "Sealler")&& user.Confirmed == Confirmed.approved)
                 {
                     var Sealler = _contect.Seallers
                         .Include(i => i.City)
@@ -508,7 +544,7 @@ namespace K_Api202001.ApiControler
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
 
             if (user == null) return Unauthorized();
-            if (await userManager.IsInRoleAsync(user, "User") && user?.Confirmed == Confirmed.approved)
+            if (await userManager.IsInRoleAsync(user, "User") && user?.Confirmed != Confirmed.block)
             {
                 return Ok(_contect.Users.Include(i => i.UserIdentity).Select(i => new
                 {
@@ -538,7 +574,7 @@ namespace K_Api202001.ApiControler
 
                 }).SingleOrDefault(i => i.id == user.Id));
             }
-            else if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed == Confirmed.approved)
+            else if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed != Confirmed.block)
             {
                 return Ok(_contect.Seallers.Include(i => i.UserIdentity).Select(i => new
                 {
@@ -567,7 +603,7 @@ namespace K_Api202001.ApiControler
         {
             var user = await userManager.FindByIdAsync(Id);
 
-            if (await userManager.IsInRoleAsync(user, "User") && user?.Confirmed == Confirmed.approved)
+            if (await userManager.IsInRoleAsync(user, "User") && user?.Confirmed != Confirmed.block)
             {
                 return Ok(_contect.Users.Include(i => i.UserIdentity).Select(i => new
                 {
@@ -607,7 +643,7 @@ namespace K_Api202001.ApiControler
         {
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
 
-            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed == Confirmed.approved)
+            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed != Confirmed.block)
             {
                 var Seallers = _contect.Seallers.Include(i => i.UserIdentity).OrderByDescending(i => i.Hdate).Select(i => new
                 {
@@ -641,7 +677,7 @@ namespace K_Api202001.ApiControler
         {
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
 
-            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed == Confirmed.approved)
+            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed != Confirmed.block)
             {
                 var User = _contect.Users.Include(i => i.UserIdentity).Select(i => new
                 {
@@ -674,7 +710,7 @@ namespace K_Api202001.ApiControler
         {
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
 
-            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed == Confirmed.approved)
+            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed != Confirmed.block)
             {
                 var User = _contect.Users
                     .Where(i=>i.id== Search || i.Name==Search || i.AName == Search || i.UserIdentity.Email == Search )
@@ -708,7 +744,7 @@ namespace K_Api202001.ApiControler
         {
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
 
-            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed == Confirmed.approved)
+            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed != Confirmed.block)
             {
                 var Seallers = _contect.Seallers.
                       Where(i => i.id == Search || i.projectAName == Search || i.projectName == Search || i.UserIdentity.Email == Search
@@ -747,7 +783,7 @@ namespace K_Api202001.ApiControler
         {
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
 
-            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed == Confirmed.approved)
+            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed != Confirmed.block)
             {
                 var Seallers = _contect.Seallers.
                       Where(i => i.UserIdentity.Confirmed == Confirmed.non).OrderByDescending(i => i.Hdate).Select(i => new
@@ -783,7 +819,7 @@ namespace K_Api202001.ApiControler
         {
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
 
-            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed == Confirmed.approved)
+            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed != Confirmed.block)
             {
                 var Acount = await userManager.FindByIdAsync(model.AcountId);
                 if (Acount != null)

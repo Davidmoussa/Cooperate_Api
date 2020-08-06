@@ -32,8 +32,8 @@ namespace K_Api202001.Models
         public bool Delete { get; set; }
         public int Timespent { get; set; }
 
-        public int ProductTypeId { get; set; }
-        public virtual ProductType ProductType { get; set; }
+      //  public int ProductTypeId { get; set; }
+       // public virtual ProductType ProductType { get; set; }
 
         public virtual ICollection<productForm> Form { get; set; }
         public virtual ICollection<productIMg> Img { get; set; }

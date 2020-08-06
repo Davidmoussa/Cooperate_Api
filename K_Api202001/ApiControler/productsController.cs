@@ -15,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace K_Api202001.ApiControler
 {
+    
     [Route("api/[controller]")]
     [ApiController]
     public class productsController : ControllerBase
@@ -58,11 +59,12 @@ namespace K_Api202001.ApiControler
         {
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
        
-            if ( await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed == Confirmed.approved)
+            if ( await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed != Confirmed.block)
             {
                 var prodect = _contect.products.Where(i =>  i.Delete == false)
                                       .Include(i => i.Colors)
                                       .Include(i => i.sealler)
+                                      .Include(i => i.sealler.ProJectType)
                                       .Include(i => i.sealler.UserIdentity)
                                       .Include(i => i.Form)
                                       .Include(i => i.Form)
@@ -77,7 +79,7 @@ namespace K_Api202001.ApiControler
                                           i.Stock,
                                           i.StockCount,
                                           i.Timespent,
-                                          category = new { id = i.ProductType.Id, category = i.ProductType.Name, Acategory = i.ProductType.AName },
+                                          category = new { id = i.sealler.ProJectType.id, category = i.sealler.ProJectType.Name, Acategory = i.sealler.ProJectType.AName },
                                           sealler = new { i.sealler.id, i.sealler.projectAName, i.sealler.projectName, i.sealler.ProJectTypeId, i.sealler.UserIdentity.Email, i.sealler.UserIdentity.PhoneNumber },
                                           Colors = i.Colors.Select(i => new { i.AColor, i.Id, i.Code, i.Color }).ToList(),
                                           Imgs = i.Img.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
@@ -100,7 +102,7 @@ namespace K_Api202001.ApiControler
             {
                 var prodect = _contect.products.Where(i => i.Delete == false && i.SeallerId==user.Id)
                                       .Include(i => i.Colors)
-                                     
+                                   
                                       .Include(i => i.Form)
                                       .Include(i => i.Form)
                                       .Include(i => i.Img)
@@ -114,8 +116,8 @@ namespace K_Api202001.ApiControler
                                           i.Stock,
                                           i.StockCount,
                                           i.Timespent,
-                                          category = new { id = i.ProductType.Id, category = i.ProductType.Name, Acategory = i.ProductType.AName },
                                         
+
                                           Colors = i.Colors.Select(i => new { i.AColor, i.Id, i.Code, i.Color }).ToList(),
                                           Imgs = i.Img.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
 
@@ -143,7 +145,7 @@ namespace K_Api202001.ApiControler
             if (user == null) return Unauthorized();
             if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved)
             {
-                var prodect = _contect.products.Where(i => i.ProductTypeId == categoryId && i.SeallerId== user.Id&& i.Delete == false)
+                var prodect = _contect.products.Where(i => i.sealler.ProJectTypeId == categoryId && i.SeallerId== user.Id&& i.Delete == false)
                        .Include(i => i.Colors)
                        .Include(i => i.sealler)
                        .Include(i => i.sealler.UserIdentity)
@@ -160,7 +162,7 @@ namespace K_Api202001.ApiControler
                            i.Stock,
                            i.StockCount,
                            i.Timespent,
-                           category = new { id = i.ProductType.Id, category = i.ProductType.Name, Acategory = i.ProductType.AName },
+                           //category = new { id = i.sealler.ProJectType.id, category = i.sealler.ProJectType.Name, Acategory = i.sealler.ProJectType.AName },
                            //   sealler = new { i.sealler.id, i.sealler.projectAName, i.sealler.projectName, i.sealler.ProJectTypeId, i.sealler.UserIdentity.Email, i.sealler.UserIdentity.PhoneNumber },
                            Colors = i.Colors.Select(i => new { i.AColor, i.Id, i.Code, i.Color }).ToList(),
                            Imgs = i.Img.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
@@ -178,11 +180,12 @@ namespace K_Api202001.ApiControler
                 else return Ok(new { itemCount, pageCount, currentPage, Data = prodect.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
             }
            
-          else if ((await userManager.IsInRoleAsync(user, "User") || await userManager.IsInRoleAsync(user, "Adman")) && user?.Confirmed == Confirmed.approved)
+          else if ((await userManager.IsInRoleAsync(user, "User") || await userManager.IsInRoleAsync(user, "Adman")) && user?.Confirmed != Confirmed.block)
             {
-                var prodect = _contect.products.Where(i => i.ProductTypeId == categoryId && i.sealler.UserIdentity.Confirmed == Confirmed.approved && i.Delete == false)
+                var prodect = _contect.products.Where(i => i.sealler.ProJectTypeId == categoryId && i.sealler.UserIdentity.Confirmed == Confirmed.approved && i.Delete == false)
                                       .Include(i => i.Colors)
                                       .Include(i => i.sealler)
+                                       .Include(i => i.sealler.ProJectType)
                                       .Include(i => i.sealler.UserIdentity)
                                       .Include(i => i.Form)
                                       .Include(i => i.Form)
@@ -197,7 +200,7 @@ namespace K_Api202001.ApiControler
                                           i.Stock,
                                           i.StockCount,
                                           i.Timespent,
-                                          category = new { id = i.ProductType.Id, category = i.ProductType.Name, Acategory = i.ProductType.AName },
+                                          category = new { id = i.sealler.ProJectType.id, category = i.sealler.ProJectType.Name, Acategory = i.sealler.ProJectType.AName },
                                           sealler = new { i.sealler.id, i.sealler.projectAName, i.sealler.projectName, i.sealler.ProJectTypeId, i.sealler.UserIdentity.Email, i.sealler.UserIdentity.PhoneNumber },
                                           Colors = i.Colors.Select(i => new { i.AColor, i.Id, i.Code, i.Color }).ToList(),
                                           Imgs = i.Img.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
@@ -245,7 +248,7 @@ namespace K_Api202001.ApiControler
                            i.Stock,
                            i.StockCount,
                            i.Timespent,
-                           category = new { id = i.ProductType.Id, category = i.ProductType.Name, Acategory = i.ProductType.AName },
+                         //  category = new { id = i.sealler.ProJectType.id, category = i.sealler.ProJectType.Name, Acategory = i.sealler.ProJectType.AName },
                            //   sealler = new { i.sealler.id, i.sealler.projectAName, i.sealler.projectName, i.sealler.ProJectTypeId, i.sealler.UserIdentity.Email, i.sealler.UserIdentity.PhoneNumber },
                            Colors = i.Colors.Select(i => new { i.AColor, i.Id, i.Code, i.Color }).ToList(),
                            Imgs = i.Img.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
@@ -264,7 +267,7 @@ namespace K_Api202001.ApiControler
                 else return Ok(new { itemCount = prodect.Count, pageCount, currentPage, Data = prodect.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
             }
 
-            else if ((await userManager.IsInRoleAsync(user, "User") || await userManager.IsInRoleAsync(user, "Adman")) && user?.Confirmed == Confirmed.approved)
+            else if ((await userManager.IsInRoleAsync(user, "User") || await userManager.IsInRoleAsync(user, "Adman")) && user?.Confirmed != Confirmed.block)
             {
                 var prodect = _contect.products.Where(i =>(
                 i.Name == search||
@@ -276,6 +279,7 @@ namespace K_Api202001.ApiControler
                 ) && i.sealler.UserIdentity.Confirmed == Confirmed.approved && i.Delete == false)
                                       .Include(i => i.Colors)
                                       .Include(i => i.sealler)
+                                       .Include(i => i.sealler.ProJectType)
                                       .Include(i => i.sealler.UserIdentity)
                                       .Include(i => i.Form)
                                       .Include(i => i.Form)
@@ -290,7 +294,7 @@ namespace K_Api202001.ApiControler
                                           i.Stock,
                                           i.StockCount,
                                           i.Timespent,
-                                          category = new { id = i.ProductType.Id, category = i.ProductType.Name, Acategory = i.ProductType.AName },
+                                          category = new { id = i.sealler.ProJectType.id, category = i.sealler.ProJectType.Name, Acategory = i.sealler.ProJectType.AName },
                                           sealler = new { i.sealler.id, i.sealler.projectAName, i.sealler.projectName, i.sealler.ProJectTypeId, i.sealler.UserIdentity.Email, i.sealler.UserIdentity.PhoneNumber },
                                           Colors = i.Colors.Select(i => new { i.AColor, i.Id, i.Code, i.Color }).ToList(),
                                           Imgs = i.Img.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
@@ -336,7 +340,7 @@ namespace K_Api202001.ApiControler
                            i.Stock,
                            i.StockCount,
                            i.Timespent,
-                           category = new { id = i.ProductType.Id, category = i.ProductType.Name, Acategory = i.ProductType.AName },
+                           category = new { id = i.sealler.ProJectType.id, category = i.sealler.ProJectType.Name, Acategory = i.sealler.ProJectType.AName },
                            // sealler = new { i.sealler.id, i.sealler.projectAName, i.sealler.projectName, i.sealler.ProJectTypeId, i.sealler.UserIdentity.Email, i.sealler.UserIdentity.PhoneNumber },
                            Colors = i.Colors.Select(i => new { i.AColor, i.Id, i.Code, i.Color }).ToList(),
                            Imgs = i.Img.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
@@ -347,10 +351,11 @@ namespace K_Api202001.ApiControler
                 if (prodect == null) return NotFound();
                 return Ok(prodect);
             }
-             else if ((await userManager.IsInRoleAsync(user, "User") || await userManager.IsInRoleAsync(user, "Adman")) && user?.Confirmed == Confirmed.approved){
+             else if ((await userManager.IsInRoleAsync(user, "User") || await userManager.IsInRoleAsync(user, "Adman")) && user?.Confirmed != Confirmed.block){
                 var prodect = _contect.products.Where(i => i.Id == Id && i.sealler.UserIdentity.Confirmed == Confirmed.approved && i.Delete == false)
                       .Include(i => i.Colors)
                       .Include(i => i.sealler)
+                      .Include(i => i.sealler.ProJectType)
                       .Include(i => i.sealler.UserIdentity)
                       .Include(i => i.Form)
 
@@ -365,7 +370,7 @@ namespace K_Api202001.ApiControler
                           i.Stock,
                           i.StockCount,
                           i.Timespent,
-                          category = new { id = i.ProductType.Id, category = i.ProductType.Name, Acategory = i.ProductType.AName },
+                          category = new { id = i.sealler.ProJectType.id, category = i.sealler.ProJectType.Name, Acategory = i.sealler.ProJectType.AName },
                           sealler = new { i.sealler.id, i.sealler.projectAName, i.sealler.projectName, i.sealler.ProJectTypeId, i.sealler.UserIdentity.Email, i.sealler.UserIdentity.PhoneNumber },
                           Colors = i.Colors.Select(i => new { i.AColor, i.Id, i.Code, i.Color }).ToList(),
                           Imgs = i.Img.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
@@ -447,7 +452,7 @@ namespace K_Api202001.ApiControler
                     product.description = model.description;
                     product.Stock = model.Stock;
                     product.price = model.price;
-                    product.ProductTypeId = model.categoryId;
+                   
                     product.StockCount = model.Stock == true ? model.StockCount : 0;                   
                     product.Timespent = model.Timespent;
                   //  _contect.SaveChanges();
@@ -537,7 +542,7 @@ namespace K_Api202001.ApiControler
                         product.Stock,
                         product.Timespent,
                         product.SeallerId,
-                        category= product.ProductTypeId,
+                       
                         Forms = product.Form.Select(i => new { i.FormId, i.value }).ToList(),
                         Colors = product.Colors.Select(i => new { i.Id, i.AColor, i.Color, i.Code }).ToList(),
                         imgs = product.Img.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
@@ -584,7 +589,7 @@ namespace K_Api202001.ApiControler
                         description = model.description,
                         Stock = model.Stock,
                         price = model.price,
-                        ProductTypeId = model.categoryId,
+                      
                         StockCount = model.Stock == true ? model.StockCount : 0,
                         SeallerId = user.Id,
                         Timespent = model.Timespent,
@@ -624,7 +629,7 @@ namespace K_Api202001.ApiControler
                         product.Stock,
                         product.Timespent,
                         product.SeallerId,
-                        category=  product.ProductTypeId,
+                       
                         Forms = product.Form.Select(i => new { i.FormId, i.value }).ToList(),
                         Colors= product.Colors.Select(i => new { i.Id, i.AColor, i.Color, i.Code }).ToList(),
                         imgs= productIMg.Select(i=>new { i.Id, img= imgProdectPath + i.img}).ToList(),
