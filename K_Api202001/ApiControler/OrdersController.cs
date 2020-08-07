@@ -11,11 +11,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using K_Api202001.Tools;
 using K_Api202001.Models.ModeView;
+using Microsoft.AspNetCore.Authorization;
 
 namespace K_Api202001.ApiControler
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class OrdersController : ControllerBase
     {
         private readonly UserManager<UserIdentity> userManager;
@@ -35,6 +37,8 @@ namespace K_Api202001.ApiControler
             _contect = db;
             _configuration = configuration;
 
+             var PathIMG = configuration["IMG:PathIMG"];
+            imgProdectPath = PathIMG + "product/";
 
             _SmtpSettings = new SmtpSettings();
             _SmtpSettings.Password = configuration["Smtp:Password"];
@@ -58,6 +62,7 @@ namespace K_Api202001.ApiControler
                     .Include(i => i.Form)
                    // .Include(i => i.Color)
                     .Include(i => i.product)
+                    .Include(i => i.product.Img)
                     .Include(i => i.sealler)
                     .Include(i => i.sealler.UserIdentity)
                     .Select(i => new {
@@ -87,8 +92,10 @@ namespace K_Api202001.ApiControler
                             i.CodeColor,
                             i.ANameColor,
                             i.NameColor
-                        }
-                   },
+                        },
+                        img = i.product.Img.Select(i => imgProdectPath + i.img).ToList(),
+                        i.product.Delete
+                    },
                    User= new
                    {
                        i.UserId,
@@ -154,7 +161,9 @@ namespace K_Api202001.ApiControler
                                i.CodeColor,
                                i.ANameColor,
                                i.NameColor
-                           }
+                           },
+                           img = i.product.Img.Select(i => imgProdectPath + i.img).ToList(),
+                           i.product.Delete
                        },
                         sealler = new
                        {
@@ -187,7 +196,7 @@ namespace K_Api202001.ApiControler
                     .Include(i => i.User)
                     .Include(i => i.User.UserIdentity)
                     .Include(i => i.Form)
-                    //.Include(i=>i.Color)
+.Include(i => i.product.Img)
                     .Include(i => i.product)
                     .Include(i => i.sealler)
                     .Include(i => i.sealler.UserIdentity)
@@ -220,7 +229,9 @@ namespace K_Api202001.ApiControler
                                 i.CodeColor,
                                 i.ANameColor,
                                 i.NameColor
-                            }
+                            },
+                            img = i.product.Img.Select(i => imgProdectPath + i.img).ToList(),
+                            i.product.Delete
                         },
                         sealler = new
                         {
@@ -272,7 +283,7 @@ namespace K_Api202001.ApiControler
                      .Include(i => i.User)
                     .Include(i => i.User.UserIdentity)
                     .Include(i => i.Form)
-                    //.Include(i => i.Color)
+                    .Include(i => i.product.Img)
                     .Include(i => i.product)
                     .Include(i => i.sealler)
                     .Include(i => i.sealler.UserIdentity)
@@ -305,7 +316,9 @@ namespace K_Api202001.ApiControler
                                 i.CodeColor,
                                 i.ANameColor,
                                 i.NameColor
-                            }
+                            },
+                            img=i.product.Img.Select(i=> imgProdectPath+i.img).ToList(),
+                            i.product.Delete
                         },
                         User = new
                         {
@@ -331,7 +344,7 @@ namespace K_Api202001.ApiControler
                     .Include(i => i.User)
                     .Include(i => i.User.UserIdentity)
                     .Include(i => i.Form)
-                    
+                    .Include(i => i.product.Img)
                     .Include(i => i.product)
                     .Include(i => i.sealler)
                     .Include(i => i.sealler.UserIdentity)
@@ -366,7 +379,9 @@ namespace K_Api202001.ApiControler
                                 i.ANameColor,
                                 i.NameColor
                                // i.Color.Code,
-                            }
+                            },
+                            img = i.product.Img.Select(i => imgProdectPath + i.img).ToList(),
+                            i.product.Delete
                         },
                         sealler = new
                         {
@@ -394,7 +409,7 @@ namespace K_Api202001.ApiControler
                     .Include(i => i.User)
                     .Include(i => i.User.UserIdentity)
                     .Include(i => i.Form)
-
+                    .Include(i => i.product.Img)
                     .Include(i => i.product)
                     .Include(i => i.sealler)
                     .Include(i => i.sealler.UserIdentity)
@@ -427,7 +442,9 @@ namespace K_Api202001.ApiControler
                                 i.CodeColor,
                                 i.ANameColor,
                                 i.NameColor
-                            }
+                            },
+                            img = i.product.Img.Select(i => imgProdectPath + i.img).ToList(),
+                            i.product.Delete
                         },
                         sealler = new
                         {
@@ -475,6 +492,7 @@ namespace K_Api202001.ApiControler
                     .Include(i => i.Form)
                     //.Include(i=>i.Form)
                     .Include(i => i.sealler)
+                    .Include(i => i.Img)
                     .Include(i => i.sealler.UserIdentity)
 
                     .SingleOrDefault(i => i.Id == model.ProductId && i.Delete == false);
@@ -483,7 +501,7 @@ namespace K_Api202001.ApiControler
 
                 if (Prodect == null) return NotFound();
 
-                if (Prodect.Stock && Prodect.StockCount <= 0) return NotFound("Prodect out  Stock");
+                if (Prodect.Stock && Prodect.StockCount-model.Cuantity < 0) return NotFound("Prodect out  Stock");
                 var Order = new Order();
 
                 Order.Date = DateTime.Now;
@@ -509,7 +527,7 @@ namespace K_Api202001.ApiControler
                 Order.ProductStock = Prodect.Stock;
                 if (Prodect.Stock)
                 {
-                    Prodect.StockCount -= 1;
+                    Prodect.StockCount -= model.Cuantity;
                     Order.orderStatus = orderStatus.Approved;
                 }
                 else
@@ -539,7 +557,7 @@ namespace K_Api202001.ApiControler
                         Order.Productprice,
 
                         Order.description,
-
+                        ProdectImg = Prodect.Img.Select(i => imgProdectPath + i.img).ToList(),
                        ProductForm = Order.Form?.Select(i => new { i.id, i.AKey, i.Key, i.value }).ToList(),
                         Order.CodeColor,
                         Order.ANameColor,
@@ -553,7 +571,7 @@ namespace K_Api202001.ApiControler
                         Order.UserAddress,
                         Order.otherPhoneNo,
 
-                    });
+                    }); 
 
             }
             else return Unauthorized("Token not User");
@@ -583,7 +601,7 @@ namespace K_Api202001.ApiControler
                         order.Productprice,
 
                         order.description,
-
+                     
                         ProductForm = order.Form.Select(i => new { i.id, i.AKey, i.Key, i.value }).ToList(),
                         order.CodeColor,
                         order.ANameColor,

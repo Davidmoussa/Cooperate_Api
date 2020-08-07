@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 
 namespace K_Api202001.ApiControler
 {
@@ -403,22 +404,35 @@ namespace K_Api202001.ApiControler
                     .Include(i=>i.Form)
                     .Include(i=>i.Colors)
                     .Include(i=>i.Img)
+                    .Include(i=>i.Order)
                  
                     .SingleOrDefault(i => i.Id == Id && i.SeallerId == user.Id && i.Delete == false);
                 if (prodect == null) { return NotFound(); }
                 else
                 {
-                       prodect.Delete = true;
-                   // _contect.products.Remove(prodect);
-                    _contect.SaveChanges();
-
-                    foreach (var item in prodect.Img.ToList())
+                    var CountOrderIN = prodect.Order.Where(i =>
+                     i.orderStatus == orderStatus.Approved||
+                     i.orderStatus == orderStatus.delivery||
+                     i.orderStatus == orderStatus.Finshed
+                    ).ToList().Count;
+                    if (CountOrderIN == 0)
                     {
-                        var fileNameold = "wwwroot//Upload//product//" + item.img;
+                        prodect.Delete = true;
+                        // _contect.products.Remove(prodect);
+                        _contect.SaveChanges();
+                        foreach (var item in prodect.Img.ToList())
+                        {
+                            var fileNameold = "wwwroot//Upload//product//" + item.img;
 
-                        if (System.IO.File.Exists(fileNameold)) System.IO.File.Delete(fileNameold);
+                            if (System.IO.File.Exists(fileNameold)) System.IO.File.Delete(fileNameold);
+                        }
+                        return Ok();
                     }
-                    return Ok();
+                    else { return BadRequest("cannot delete this prodect  "); }
+                       
+
+                   
+                    
                 }
             }
             else return Unauthorized();
@@ -438,6 +452,18 @@ namespace K_Api202001.ApiControler
             {
                 try
                 {
+
+                    var forms = new List<FormView>();
+                    var Colors = new List<ColorView>();
+                    var ImgPathupData = new List<string>();
+                    ; if (model.Forms != null)
+                        forms = JsonConvert.DeserializeObject<List<FormView>>(model.Forms);
+
+                    if (model.Colors != null)
+                        Colors = JsonConvert.DeserializeObject<List<ColorView>>(model.Colors);
+                    if (model.ImgPathupData != null)
+                         ImgPathupData = JsonConvert.DeserializeObject<List<string>>(model.ImgPathupData);
+
                     var product = _contect.products
                          .Include(i => i.Colors)
                    
@@ -456,9 +482,9 @@ namespace K_Api202001.ApiControler
                     product.StockCount = model.Stock == true ? model.StockCount : 0;                   
                     product.Timespent = model.Timespent;
                   //  _contect.SaveChanges();
-                    if (model.Form.Count > 0)
+                    if (forms!=null)
                     {
-                        foreach (var item in model.Form)
+                        foreach (var item in forms)
                         {
                            var Form = product.Form.SingleOrDefault(i => i.FormId == item.FormId );
                             if(Form != null)
@@ -474,9 +500,9 @@ namespace K_Api202001.ApiControler
                         }
                     }
 
-                    if (model.Colors.Count > 0)
+                    if (Colors !=null)
                     {
-                        foreach (var item in model.Colors)
+                        foreach (var item in Colors)
                         {
                             var Color = product.Colors.SingleOrDefault(i=>i.Id==item.Id);
                             if (Color != null)
@@ -505,9 +531,9 @@ namespace K_Api202001.ApiControler
                     for (int i = 0; i < productIMg.Count ; i++)
                     {
 
-                        if (model.ImgPathupData.Count -1>=i)
+                        if (ImgPathupData.Count -1>=i)
                         {
-                            var OldImg = model.ImgPathupData[i].Substring(imgProdectPath.Length);
+                            var OldImg = ImgPathupData[i].Substring(imgProdectPath.Length);
                             var productIMgup = product.Img.SingleOrDefault(o => o.img == OldImg );
                             if (productIMgup != null) productIMgup.img = productIMg[i];
 
@@ -522,7 +548,7 @@ namespace K_Api202001.ApiControler
 
                     _contect.SaveChanges();
 
-                    foreach (var item in model.ImgPathupData)
+                    foreach (var item in ImgPathupData)
                     {
                         var fileNameold = "wwwroot//Upload//product//" + item.Substring(imgProdectPath.Length);
 
@@ -581,6 +607,14 @@ namespace K_Api202001.ApiControler
             {
                 try
                 {
+                    var forms = new List<FormView>();
+                    var Colors = new List<ColorView>();
+;                    if (model.Forms != null) 
+                         forms = JsonConvert.DeserializeObject<List<FormView>>(model.Forms);
+                   
+                    if (model.Colors != null)
+                         Colors = JsonConvert.DeserializeObject<List<ColorView>>(model.Colors);
+
                     var product = new product()
                     {
                         Name = model.Name,
@@ -592,9 +626,9 @@ namespace K_Api202001.ApiControler
                       
                         StockCount = model.Stock == true ? model.StockCount : 0,
                         SeallerId = user.Id,
-                        Timespent = model.Timespent,
-                       Colors=model.Colors.Select(i=>new productColor() { AColor=i.AColor,Code=i.Code, Color=i.Color}).ToList(),
-                        Form=model.Form.Select(i=>new productForm() { FormId= i.FormId ,value=i.Value }).ToList(),
+                        Timespent = model.Stock != true ? model.Timespent : 0   ,
+                       Colors=Colors.Select(i=>new productColor() { AColor=i.AColor,Code=i.Code, Color=i.Color}).ToList(),
+                        Form=forms.Select(i=>new productForm() { FormId= i.FormId ,value=i.Value }).ToList(),
                        //Img = ImgMapForm.ImgList("E://ITI//MVC//", Img).Select (i=>new productIMg() { img= i}).ToList()
 
                     };

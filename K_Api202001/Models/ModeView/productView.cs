@@ -27,9 +27,13 @@ namespace K_Api202001.Models.ModeView
        public IFormFile Img3 { get; set; }
        public IFormFile Img4 { get; set; }
        public IFormFile Img5 { get; set; }
+
+
+       public string Colors { get; set; }
+       public string Forms { get; set; }
       
-        public IList<ColorView> Colors { get; set; }
-        public IList<FormView> Form { get; set; }
+       // public IList<ColorView> Colors { get; set; }
+       // public IList<FormView> Form { get; set; }
 
     }
     public  class ColorView
@@ -75,9 +79,9 @@ namespace K_Api202001.Models.ModeView
         public IFormFile Img4 { get; set; }
         public IFormFile Img5 { get; set; }
        
-        public IList<string> ImgPathupData { get; set; }
-        public IList<ColorView> Colors { get; set; }
-        public IList<FormView> Form { get; set; }
+        public string ImgPathupData { get; set; }
+        public string Colors { get; set; }
+        public string Forms { get; set; }
 
     }
 }

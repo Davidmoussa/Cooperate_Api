@@ -215,7 +215,7 @@ namespace K_Api202001
             var roleManager = serviceProvider.GetService<RoleManager<IdentityRole>>();
 
             // ENsure database created and is up to date
-            await context.Database.EnsureDeletedAsync();
+           // await context.Database.EnsureDeletedAsync();
             await context.Database.MigrateAsync();
 
             // Ensure that we have an admin role
