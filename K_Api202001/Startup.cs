@@ -74,7 +74,7 @@ namespace K_Api202001
                    .AllowAnyHeader()
                    .AllowCredentials()
 
-                  .WithOrigins("https://localhost:4200");
+                  .WithOrigins("https://localhost:4200", "http://localhost:4200");
            }));
 
 
