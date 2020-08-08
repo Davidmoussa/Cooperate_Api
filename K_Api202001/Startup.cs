@@ -219,7 +219,7 @@ namespace K_Api202001
             await context.Database.MigrateAsync();
 
             // Ensure that we have an admin role
-            var adminRoleExist = await roleManager.RoleExistsAsync("Admann");
+            var adminRoleExist = await roleManager.RoleExistsAsync("Adman");
             if (!adminRoleExist)
             {
                 await roleManager.CreateAsync(new IdentityRole()

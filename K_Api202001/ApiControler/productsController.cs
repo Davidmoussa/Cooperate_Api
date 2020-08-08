@@ -68,7 +68,8 @@ namespace K_Api202001.ApiControler
                                       .Include(i => i.sealler.ProJectType)
                                       .Include(i => i.sealler.UserIdentity)
                                       .Include(i => i.Form)
-                                      .Include(i => i.Form)
+                                     .Include(i => i.sealler.City)
+                                      .Include(i => i.sealler.zone)
                                       .Include(i => i.Img)
                                       .Select(i =>
                                       new
@@ -81,10 +82,20 @@ namespace K_Api202001.ApiControler
                                           i.StockCount,
                                           i.Timespent,
                                           category = new { id = i.sealler.ProJectType.id, category = i.sealler.ProJectType.Name, Acategory = i.sealler.ProJectType.AName },
-                                          sealler = new { i.sealler.id, i.sealler.projectAName, i.sealler.projectName, i.sealler.ProJectTypeId, i.sealler.UserIdentity.Email, i.sealler.UserIdentity.PhoneNumber },
+                                          sealler = new
+                                          {
+                                              i.sealler.id,
+                                              i.sealler.projectAName,
+                                              i.sealler.projectName,
+                                              i.sealler.ProJectTypeId,
+                                              i.sealler.UserIdentity.Email,
+                                              i.sealler.UserIdentity.PhoneNumber,
+                                              City = i.sealler.City == null ? null : new { i.sealler.City.id, i.sealler.City.Name, i.sealler.City.AName },
+                                              zone = i.sealler.zone == null ? null : new { i.sealler.zone.id, i.sealler.zone.Name, i.sealler.zone.AName }
+                                          },
                                           Colors = i.Colors.Select(i => new { i.AColor, i.Id, i.Code, i.Color }).ToList(),
                                           Imgs = i.Img.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
-
+                                          Form = i.Form.Select(i => new { i.FormId, i.value, i.Form.AName, i.Form.Name, i.Form.Type, i.Form.Required }).ToList()
                                       }
 
                                       ).ToList();
@@ -121,7 +132,7 @@ namespace K_Api202001.ApiControler
 
                                           Colors = i.Colors.Select(i => new { i.AColor, i.Id, i.Code, i.Color }).ToList(),
                                           Imgs = i.Img.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
-
+                                          Form = i.Form.Select(i => new { i.FormId, i.value, i.Form.AName, i.Form.Name, i.Form.Type, i.Form.Required }).ToList()
                                       }
 
                                       ).ToList();
@@ -167,7 +178,7 @@ namespace K_Api202001.ApiControler
                            //   sealler = new { i.sealler.id, i.sealler.projectAName, i.sealler.projectName, i.sealler.ProJectTypeId, i.sealler.UserIdentity.Email, i.sealler.UserIdentity.PhoneNumber },
                            Colors = i.Colors.Select(i => new { i.AColor, i.Id, i.Code, i.Color }).ToList(),
                            Imgs = i.Img.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
-
+                           Form = i.Form.Select(i => new { i.FormId, i.value, i.Form.AName, i.Form.Name, i.Form.Type, i.Form.Required }).ToList()
                        }
 
                        ).ToList();
@@ -190,7 +201,8 @@ namespace K_Api202001.ApiControler
                                       .Include(i => i.sealler.UserIdentity)
                                       .Include(i => i.Form)
                                       .Include(i => i.Form)
-                                      .Include(i => i.Img)
+                                     .Include(i => i.sealler.City)
+                                     .Include(i => i.sealler.zone)
                                       .Select(i =>
                                       new
                                       {
@@ -202,9 +214,20 @@ namespace K_Api202001.ApiControler
                                           i.StockCount,
                                           i.Timespent,
                                           category = new { id = i.sealler.ProJectType.id, category = i.sealler.ProJectType.Name, Acategory = i.sealler.ProJectType.AName },
-                                          sealler = new { i.sealler.id, i.sealler.projectAName, i.sealler.projectName, i.sealler.ProJectTypeId, i.sealler.UserIdentity.Email, i.sealler.UserIdentity.PhoneNumber },
+                                          sealler = new
+                                          {
+                                              i.sealler.id,
+                                              i.sealler.projectAName,
+                                              i.sealler.projectName,
+                                              i.sealler.ProJectTypeId,
+                                              i.sealler.UserIdentity.Email,
+                                              i.sealler.UserIdentity.PhoneNumber,
+                                              City = i.sealler.City == null ? null : new { i.sealler.City.id, i.sealler.City.Name, i.sealler.City.AName },
+                                              zone = i.sealler.zone == null ? null : new { i.sealler.zone.id, i.sealler.zone.Name, i.sealler.zone.AName }
+                                          },
                                           Colors = i.Colors.Select(i => new { i.AColor, i.Id, i.Code, i.Color }).ToList(),
                                           Imgs = i.Img.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
+                                          Form = i.Form.Select(i => new { i.FormId, i.value, i.Form.AName, i.Form.Name, i.Form.Type, i.Form.Required }).ToList()
 
                                       }
 
@@ -270,20 +293,22 @@ namespace K_Api202001.ApiControler
 
             else if ((await userManager.IsInRoleAsync(user, "User") || await userManager.IsInRoleAsync(user, "Adman")) && user?.Confirmed != Confirmed.block)
             {
-                var prodect = _contect.products.Where(i =>(
-                i.Name == search||
-                i.AName==search||
-                i.SeallerId==search||
-                i.sealler.projectAName==search||
-                i.sealler.projectName==search||
-                i.sealler.UserIdentity.PhoneNumber.ToString()==search
+                var prodect = _contect.products.Where(i => (
+                i.Name == search ||
+                i.AName == search ||
+                i.SeallerId == search||
+                i.sealler.projectAName == search ||
+                i.sealler.projectName == search ||
+                i.sealler.UserIdentity.PhoneNumber == search
                 ) && i.sealler.UserIdentity.Confirmed == Confirmed.approved && i.Delete == false)
                                       .Include(i => i.Colors)
                                       .Include(i => i.sealler)
                                        .Include(i => i.sealler.ProJectType)
+
                                       .Include(i => i.sealler.UserIdentity)
                                       .Include(i => i.Form)
-                                      .Include(i => i.Form)
+                                     .Include(i => i.sealler.City)
+                                       .Include(i => i.sealler.zone)
                                       .Include(i => i.Img)
                                       .Select(i =>
                                       new
@@ -296,10 +321,13 @@ namespace K_Api202001.ApiControler
                                           i.StockCount,
                                           i.Timespent,
                                           category = new { id = i.sealler.ProJectType.id, category = i.sealler.ProJectType.Name, Acategory = i.sealler.ProJectType.AName },
-                                          sealler = new { i.sealler.id, i.sealler.projectAName, i.sealler.projectName, i.sealler.ProJectTypeId, i.sealler.UserIdentity.Email, i.sealler.UserIdentity.PhoneNumber },
+                                          sealler = new { i.sealler.id, i.sealler.projectAName, i.sealler.projectName, i.sealler.ProJectTypeId, i.sealler.UserIdentity.Email, i.sealler.UserIdentity.PhoneNumber,
+                                              City = i.sealler.City == null ? null : new { i.sealler.City.id, i.sealler.City.Name, i.sealler.City.AName },
+                                              zone = i.sealler.zone == null ? null : new { i.sealler.zone.id, i.sealler.zone.Name, i.sealler.zone.AName }
+                                          },
                                           Colors = i.Colors.Select(i => new { i.AColor, i.Id, i.Code, i.Color }).ToList(),
                                           Imgs = i.Img.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
-                                          Form = i.Form.Select(i => new { i.FormId, i.value, i.Form.AName, i.Form.Name, i.Form.Type, i.Form.Required })
+                                          Form = i.Form.Select(i => new { i.FormId, i.value, i.Form.AName, i.Form.Name, i.Form.Type, i.Form.Required }).ToList()
                                       }
 
                                       ).ToList();
@@ -345,7 +373,7 @@ namespace K_Api202001.ApiControler
                            // sealler = new { i.sealler.id, i.sealler.projectAName, i.sealler.projectName, i.sealler.ProJectTypeId, i.sealler.UserIdentity.Email, i.sealler.UserIdentity.PhoneNumber },
                            Colors = i.Colors.Select(i => new { i.AColor, i.Id, i.Code, i.Color }).ToList(),
                            Imgs = i.Img.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
-                           Form = i.Form.Select(i => new { i.FormId, i.value, i.Form.AName, i.Form.Name, i.Form.Type, i.Form.Required })
+                           Form = i.Form.Select(i => new { i.FormId, i.value, i.Form.AName, i.Form.Name, i.Form.Type, i.Form.Required }).ToList()
                        }
 
                        ).SingleOrDefault();
@@ -360,6 +388,8 @@ namespace K_Api202001.ApiControler
                       .Include(i => i.sealler.UserIdentity)
                       .Include(i => i.Form)
 
+                      .Include(i => i.sealler.City)
+                      .Include(i => i.sealler.zone)
                       .Include(i => i.Img)
                       .Select(i =>
                       new
@@ -372,10 +402,20 @@ namespace K_Api202001.ApiControler
                           i.StockCount,
                           i.Timespent,
                           category = new { id = i.sealler.ProJectType.id, category = i.sealler.ProJectType.Name, Acategory = i.sealler.ProJectType.AName },
-                          sealler = new { i.sealler.id, i.sealler.projectAName, i.sealler.projectName, i.sealler.ProJectTypeId, i.sealler.UserIdentity.Email, i.sealler.UserIdentity.PhoneNumber },
+                          sealler = new
+                          {
+                              i.sealler.id,
+                              i.sealler.projectAName,
+                              i.sealler.projectName,
+                              i.sealler.ProJectTypeId,
+                              i.sealler.UserIdentity.Email,
+                              i.sealler.UserIdentity.PhoneNumber,
+                              City = i.sealler.City == null ? null : new { i.sealler.City.id, i.sealler.City.Name, i.sealler.City.AName },
+                              zone = i.sealler.zone == null ? null : new { i.sealler.zone.id, i.sealler.zone.Name, i.sealler.zone.AName }
+                          },
                           Colors = i.Colors.Select(i => new { i.AColor, i.Id, i.Code, i.Color }).ToList(),
                           Imgs = i.Img.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
-                          Form = i.Form.Select(i => new { i.FormId, i.value, i.Form.AName, i.Form.Name, i.Form.Type, i.Form.Required })
+                          Form = i.Form.Select(i => new { i.FormId, i.value, i.Form.AName, i.Form.Name, i.Form.Type, i.Form.Required }).ToList()
                       }
 
                       ).SingleOrDefault();

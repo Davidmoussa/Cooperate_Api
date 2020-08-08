@@ -192,7 +192,7 @@ namespace K_Api202001.ApiControler
             else if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed == Confirmed.approved)
             {
 
-                var order = _contect.Orders.Where(i => i.UserId == user.Id && orderStatus == null ? true : i.orderStatus == orderStatus)
+                var order = _contect.Orders.Where(i =>  orderStatus == null ? true : i.orderStatus == orderStatus)
                     .Include(i => i.User)
                     .Include(i => i.User.UserIdentity)
                     .Include(i => i.Form)
