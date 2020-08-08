@@ -497,7 +497,7 @@ namespace K_Api202001.ApiControler
 
                     .SingleOrDefault(i => i.Id == model.ProductId && i.Delete == false);
 
-                var prodectColore = Prodect.Colors.SingleOrDefault(i => i.Id == model.ColerId);
+                var prodectColore = Prodect.Colors.SingleOrDefault(i => i.Id == model.ColorId);
 
                 if (Prodect == null) return NotFound();
 
@@ -580,82 +580,138 @@ namespace K_Api202001.ApiControler
         [HttpPost ("ChangStatus")]
         public async Task<IActionResult> Approved(orderstateModeview model)     
         {
-            var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
-            if (user == null) return Unauthorized();
-            if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved)
+            try
             {
-                var order = _contect.Orders.SingleOrDefault(i => i.Id == model.OrderId && i.SeallerId==user.Id);
-                if (order == null) return NotFound();
-                if (model.orderStatus!=orderStatus.Ordered && model.orderStatus != orderStatus.Receipt)
+                var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+                if (user == null) return Unauthorized();
+                if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved)
                 {
-                    order.orderStatus = model.orderStatus;
-                    _contect.SaveChanges();
-                }
+                    var order = _contect.Orders.SingleOrDefault(i => i.Id == model.OrderId && i.SeallerId == user.Id);
+                    if (order == null) return NotFound();
 
-                return Ok(
-                    new
+
+                    if (model.orderStatus == orderStatus.Approved)
                     {
-                        order.Id,
-                        order.ProductName,
-                        order.ProductAName,
-                        order.Productprice,
+                        if (order.orderStatus == orderStatus.Reject || order.orderStatus == orderStatus.Ordered) order.orderStatus = model.orderStatus;
+                        else throw new Exception($"order is {order.orderStatus} ");
+                    }
+                    else if (model.orderStatus == orderStatus.Reject)
+                    {
+                        if (order.orderStatus == orderStatus.Ordered || order.orderStatus == orderStatus.Approved) order.orderStatus = model.orderStatus;
+                        else throw new Exception($"order is {order.orderStatus} ");
+                    }
+                    else if (model.orderStatus == orderStatus.Finshed)
+                    {
+                        if (order.orderStatus == orderStatus.Approved) order.orderStatus = model.orderStatus;
+                        else throw new Exception($"order is {order.orderStatus} ");
+                    }
+                    else if (model.orderStatus == orderStatus.delivery)
+                    {
+                        if (order.orderStatus == orderStatus.Finshed || order.orderStatus == orderStatus.Approved) order.orderStatus = model.orderStatus;
+                        else throw new Exception($"order is {order.orderStatus} ");
+                    }
+                    else
+                    {
+                        throw new Exception($"order is {order.orderStatus} ");
+                    }
 
-                        order.description,
-                     
-                        ProductForm = order.Form.Select(i => new { i.id, i.AKey, i.Key, i.value }).ToList(),
-                        order.CodeColor,
-                        order.ANameColor,
-                        order.NameColor,
-                        order.orderStatus,
-                        order.Cuantity,
-                        order.ProductpriceTotal,
-                        order.Date,
-                        order.Timespent,
-                        order.TimespentEnd,
-                        order.UserAddress,
-                        order.otherPhoneNo,
-                        
-                    });
+                    _contect.SaveChanges();
 
+
+                    return Ok(
+                        new
+                        {
+                            order.Id,
+                            order.ProductName,
+                            order.ProductAName,
+                            order.Productprice,
+
+                            order.description,
+
+                            // ProductForm = order.Form.Select(i => new { i.id, i.AKey, i.Key, i.value }).ToList(),
+                            order.CodeColor,
+                            order.ANameColor,
+                            order.NameColor,
+                            order.orderStatus,
+                            order.Cuantity,
+                            order.ProductpriceTotal,
+                            order.Date,
+                            order.Timespent,
+                            order.TimespentEnd,
+                            order.UserAddress,
+                            order.otherPhoneNo,
+
+                        });
+
+                }
+                else if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed == Confirmed.approved)
+                {
+                    var order = _contect.Orders.SingleOrDefault(i => i.Id == model.OrderId);
+                    if (order == null) return NotFound();
+
+                    if (model.orderStatus == orderStatus.Approved)
+                    {
+                        if (order.orderStatus == orderStatus.Reject || order.orderStatus == orderStatus.Ordered) order.orderStatus = model.orderStatus;
+                        else throw new Exception($"order is {order.orderStatus} ");
+                    }
+                    else if (model.orderStatus == orderStatus.Reject)
+                    {
+                        if (order.orderStatus == orderStatus.Ordered || order.orderStatus == orderStatus.Approved) order.orderStatus = model.orderStatus;
+                        else throw new Exception($"order is {order.orderStatus} ");
+                    }
+                    else if (model.orderStatus == orderStatus.Finshed)
+                    {
+                        if (order.orderStatus == orderStatus.Approved) order.orderStatus = model.orderStatus;
+                        else throw new Exception($"order is {order.orderStatus} ");
+                    }
+                    else if (model.orderStatus == orderStatus.delivery)
+                    {
+                        if (order.orderStatus == orderStatus.Finshed || order.orderStatus == orderStatus.Approved) order.orderStatus = model.orderStatus;
+                        else throw new Exception($"order is {order.orderStatus} ");
+                    }
+                    else if (model.orderStatus == orderStatus.Receipt)
+                    {
+                        if (order.orderStatus == orderStatus.Finshed || order.orderStatus == orderStatus.delivery) order.orderStatus = model.orderStatus;
+                        else throw new Exception($"order is {order.orderStatus} ");
+                    }
+                    else
+                    {
+                        throw new Exception($"order is {order.orderStatus} ");
+                    }
+
+                    _contect.SaveChanges();
+
+                    return Ok(
+                        new
+                        {
+                            order.Id,
+                            order.ProductName,
+                            order.ProductAName,
+                            order.Productprice,
+
+                            order.description,
+
+                            // ProductForm = order.Form.Select(i => new { i.id, i.AKey, i.Key, i.value }).ToList(),
+                            order.CodeColor,
+                            order.ANameColor,
+                            order.NameColor,
+                            order.orderStatus,
+                            order.Cuantity,
+                            order.ProductpriceTotal,
+                            order.Date,
+                            order.Timespent,
+                            order.TimespentEnd,
+                            order.UserAddress,
+                            order.otherPhoneNo,
+
+                        });
+
+                }
+                else
+
+                    return Unauthorized();
             }
-            else if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed == Confirmed.approved)
-            {
-                var order = _contect.Orders.SingleOrDefault(i => i.Id == model.OrderId);
-                if (order == null) return NotFound();
-                if (model.orderStatus != orderStatus.Ordered && model.orderStatus != orderStatus.Receipt)
-                {
-                    order.orderStatus = model.orderStatus;
-                    _contect.SaveChanges();
-                }
-
-                return Ok(
-                    new
-                    {
-                        order.Id,
-                        order.ProductName,
-                        order.ProductAName,
-                        order.Productprice,
-
-                        order.description,
-
-                        ProductForm = order.Form.Select(i => new { i.id, i.AKey, i.Key, i.value }).ToList(),
-                        order.CodeColor,
-                        order.ANameColor,
-                        order.NameColor,
-                        order.orderStatus,
-                        order.Cuantity,
-                        order.ProductpriceTotal,
-                        order.Date,
-                        order.Timespent,
-                        order.TimespentEnd,
-                        order.UserAddress,
-                        order.otherPhoneNo,
-
-                    });
-
-            }else
-
-            return Unauthorized();
+            catch (Exception e) { return BadRequest(e.Message); }
 
         }
 
@@ -732,7 +788,7 @@ namespace K_Api202001.ApiControler
 
                      order.description,
 
-                     ProductForm = order.Form?.Select(i => new { i.id, i.AKey, i.Key, i.value }).ToList(),
+                    // ProductForm = order.Form?.Select(i => new { i.id, i.AKey, i.Key, i.value }).ToList(),
                      order.CodeColor,
                      order.ANameColor,
                      order.NameColor,

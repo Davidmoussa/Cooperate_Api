@@ -19,7 +19,7 @@ namespace K_Api202001.Models.ModeView
       //  public DateTime? ReceiptDate { get; set; }
     //    public ReceiptCode? ReceiptCode { get; set; }   
         public string otherPhoneNo { get; set; }
-        public int ColerId { get; set; }
+        public int ColorId { get; set; }
        
 
 
