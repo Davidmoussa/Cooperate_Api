@@ -48,6 +48,88 @@ namespace K_Api202001.ApiControler
 
         }
 
+
+        [HttpPost("orderStatusList")]
+        public async Task<IActionResult> GetOrders(orderstateview model)
+        {
+
+            var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+            if (user == null) return Unauthorized();
+            if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved)
+            {
+                var order = _contect.Orders.Where(i => i.SeallerId == user.Id && model. orderStatus.Count == 0 ? true : model.orderStatus.Contains(i.orderStatus))
+                     .Include(i => i.User)
+                    .Include(i => i.User.UserIdentity)
+                    .Include(i => i.Form)
+                    // .Include(i => i.Color)
+                    .Include(i => i.product)
+                    .Include(i => i.product.Img)
+                    .Include(i => i.sealler)
+                    .Include(i => i.sealler.UserIdentity)
+                    .Select(i => new
+                    {
+
+                        i.Id,
+                        i.ProductId,
+                        i.Date,
+                        i.description,
+                        i.orderStatus,
+                        i.otherPhoneNo,
+
+
+                        i.Cuantity,
+                        i.TimespentEnd,
+                        i.Timespent,
+                        i.ReceiptDate,
+                        i.ProductpriceTotal,
+                        product = new
+                        {
+                            i.ProductAName,
+                            i.ProductName,
+                            i.Productprice,
+                            i.product.Id,
+                            i.ProductStock,
+
+                            Form = i.Form.Select(i => new { i.id, i.Key, i.value }).ToList(),
+                            Color = new
+                            {
+                                i.CodeColor,
+                                i.ANameColor,
+                                i.NameColor
+                            },
+                            img = i.product.Img.Select(i => imgProdectPath + i.img).ToList(),
+                            i.product.Delete
+                        },
+                        User = new
+                        {
+                            i.UserId,
+                            i.User.Name,
+                            i.UserAddress,
+                            i.User.UserIdentity.PhoneNumber,
+                            i.User.UserIdentity.Email,
+                            i.otherPhoneNo,
+
+                            //i.User.UserIdentity.PhoneNumber,
+                            //i.User.UserIdentity.PhoneNumber,
+                        }
+
+                    }).OrderByDescending(i => i.Date).ToList();
+
+                // Pagenation
+
+                pageCount = (int)Math.Ceiling(decimal.Divide(order.Count, itemCount));
+             //   if (model.currentPage > pageCount - 1) model.currentPage = (int)pageCount - 1;
+                // End 
+
+                if (order.Count == 0) return NotFound();
+                else return Ok(new { itemCount, pageCount, model. currentPage, Data = order.Skip((model.currentPage) * itemCount).Take(itemCount).ToList() });
+
+            }
+           
+            else return Unauthorized();
+
+        }
+
         // GET: api/Orders
         [HttpGet ("orderStatus")]
         public async Task<IActionResult> GetOrders( int currentPage, orderStatus? orderStatus)
@@ -114,7 +196,7 @@ namespace K_Api202001.ApiControler
                 // Pagenation
 
                 pageCount = (int)Math.Ceiling(decimal.Divide(order.Count, itemCount));
-                if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+              //  if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
                 // End 
 
                 if (order.Count == 0) return NotFound();
@@ -182,7 +264,7 @@ namespace K_Api202001.ApiControler
 
 
                 pageCount = (int)Math.Ceiling(decimal.Divide(order.Count, itemCount));
-                if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+               // if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
                 // End 
 
                 if (order.Count == 0) return NotFound();
@@ -260,7 +342,7 @@ namespace K_Api202001.ApiControler
                     }).OrderByDescending(i => i.Date).ToList();
 
                 pageCount = (int)Math.Ceiling(decimal.Divide(order.Count, itemCount));
-                if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+               // if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
                 // End 
 
                 if (order.Count == 0) return NotFound();

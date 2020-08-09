@@ -26,6 +26,14 @@ namespace K_Api202001.Models.ModeView
 
     }
 
+    public class orderstateview
+    {
+
+        public int currentPage { get; set; }
+
+        public List<orderStatus>? orderStatus { get; set; }
+    }
+
 
     public class orderstateModeview
     {

@@ -104,7 +104,7 @@ namespace K_Api202001.ApiControler
                 // Pagenation
 
                 pageCount = (int)Math.Ceiling(decimal.Divide(prodect.Count, itemCount));
-                if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+             //   if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
                 // End 
 
                 if (prodect.Count == 0) return NotFound();
@@ -141,7 +141,7 @@ namespace K_Api202001.ApiControler
                 // Pagenation
 
                 pageCount = (int)Math.Ceiling(decimal.Divide(prodect.Count, itemCount));
-                if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+              //  if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
                 // End 
 
                 if (prodect.Count == 0) return NotFound();
@@ -185,7 +185,7 @@ namespace K_Api202001.ApiControler
                 // Pagenation
 
                 pageCount = (int)Math.Ceiling(decimal.Divide(prodect.Count, itemCount));
-                if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+               // if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
                 // End 
 
                 if (prodect.Count == 0) return NotFound();
@@ -235,7 +235,7 @@ namespace K_Api202001.ApiControler
                 // Pagenation
 
                 pageCount = (int)Math.Ceiling(decimal.Divide(prodect.Count, itemCount));
-                if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+            //    if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
                 // End 
 
                 if (prodect.Count == 0) return NotFound();
@@ -284,7 +284,7 @@ namespace K_Api202001.ApiControler
                 // Pagenation
 
                 pageCount = (int)Math.Ceiling(decimal.Divide(prodect.Count, itemCount));
-                if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+               // if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
                 // End 
 
                 if (prodect.Count == 0) return NotFound();
@@ -334,7 +334,7 @@ namespace K_Api202001.ApiControler
                 // Pagenation
 
                 pageCount = (int)Math.Ceiling(decimal.Divide(prodect.Count, itemCount));
-                if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+               // if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
                 // End 
 
                 if (prodect.Count == 0) return NotFound();

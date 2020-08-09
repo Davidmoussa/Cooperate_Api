@@ -36,7 +36,7 @@ namespace K_Api202001.ApiControler
         {
            var News = _context.News.ToList();
             pageCount = (int)Math.Ceiling(decimal.Divide(News.Count, itemCount));
-            if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+          //  if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
             // End 
 
             if (News.Count == 0) return NotFound();

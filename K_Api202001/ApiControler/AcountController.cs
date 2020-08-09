@@ -369,6 +369,8 @@ namespace K_Api202001.ApiControler
                 else
                     Sealler.Confirmed = Confirmed.Reject;
                 await userManager.UpdateAsync(Sealler);
+                AlertNotifiction.SendEmail(Sealler.Email, " Conform Account", _SmtpSettings, $"Dear  {Sealler. UserName }  <br> Acount is  "+ Sealler.Confirmed.ToString());
+
                 return Ok(new { Sealler.Id });
             }
             else return NotFound();
@@ -662,7 +664,7 @@ namespace K_Api202001.ApiControler
                     Role = "Sealler"
                 }).ToList();
                 pageCount = (int)Math.Ceiling(decimal.Divide(Seallers.Count, itemCount));
-                if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+               // if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
                 if (Seallers.Count == 0) return NotFound();
                 else return Ok(new { itemCount=Seallers.Count, pageCount, currentPage, Data = Seallers.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
 
@@ -692,7 +694,7 @@ namespace K_Api202001.ApiControler
                 }).ToList();
 
                 pageCount = (int)Math.Ceiling(decimal.Divide(User.Count, itemCount));
-                if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+               // if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
                 if (User.Count == 0) return NotFound();
                 else return Ok(new { itemCount, pageCount, currentPage, Data = User.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
                
@@ -727,7 +729,7 @@ namespace K_Api202001.ApiControler
                 }).ToList();
 
                 pageCount = (int)Math.Ceiling(decimal.Divide(User.Count, itemCount));
-                if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+              //  if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
                 if (User.Count == 0) return NotFound();
                 else return Ok(new { itemCount, pageCount, currentPage, Data = User.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
 
@@ -767,7 +769,7 @@ namespace K_Api202001.ApiControler
                     Role = "Sealler"
                 }).ToList();
                 pageCount = (int)Math.Ceiling(decimal.Divide(Seallers.Count, itemCount));
-                if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+              //  if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
                 if (Seallers.Count == 0) return NotFound();
                 else return Ok(new { itemCount, pageCount, currentPage, Data = Seallers.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
 
@@ -803,7 +805,7 @@ namespace K_Api202001.ApiControler
                         Role = "Sealler"
                     }).ToList();
                 pageCount = (int)Math.Ceiling(decimal.Divide(Seallers.Count, itemCount));
-                if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+               // if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
                 if (Seallers.Count == 0) return NotFound();
                 else return Ok(new { itemCount, pageCount, currentPage, Data = Seallers.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
 

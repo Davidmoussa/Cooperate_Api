@@ -109,7 +109,7 @@ namespace K_Api202001.ApiControler
                 // Pagenation
                 
                   pageCount = (int)Math.Ceiling(decimal.Divide(report.Count, itemCount));
-                if (currentPage > pageCount - 1) currentPage =(int) pageCount - 1;
+               // if (currentPage > pageCount - 1) currentPage =(int) pageCount - 1;
                 // End 
 
                 if (report.Count == 0) return NotFound();
