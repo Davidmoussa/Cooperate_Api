@@ -90,7 +90,7 @@ namespace K_Api202001.ApiControler
                         new Claim("Id", User.Id),
 
                         new Claim("Rolas",userManager.GetRolesAsync(User).Result.FirstOrDefault()) };
-                        var signinKey = new SymmetricSecurityKey( Encoding.UTF8.GetBytes(_configuration["Jwt:SigningKey"]));
+                        var signinKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:SigningKey"]));
 
                         int expiryInMinutes = Convert.ToInt32(_configuration["Jwt:ExpiryInHouer"]);
 
@@ -117,22 +117,22 @@ namespace K_Api202001.ApiControler
                         AlertNotifiction.SendEmail(user.UserIdentity.Email, " Conform Account", _SmtpSettings, Code.ToString());
 
                         return Ok(new
-                            {
-                                token = new JwtSecurityTokenHandler().WriteToken(token),
-                                expiration = token.ValidTo,
-                                user.id,
-                                user.Name,
-                                user.AName,
-                                user.UserIdentity.Email,
-                                user.UserIdentity.PhoneNumber,
-                                Roles = userManager.GetRolesAsync(User).Result.FirstOrDefault()
+                        {
+                            token = new JwtSecurityTokenHandler().WriteToken(token),
+                            expiration = token.ValidTo,
+                            user.id,
+                            user.Name,
+                            user.AName,
+                            user.UserIdentity.Email,
+                            user.UserIdentity.PhoneNumber,
+                            Roles = userManager.GetRolesAsync(User).Result.FirstOrDefault()
 
 
-                            });
+                        });
 
 
 
-                        }
+                    }
                     else { return BadRequest(); }
                 }
                 catch (Exception e)
@@ -149,7 +149,7 @@ namespace K_Api202001.ApiControler
         public async Task<IActionResult> GetConformUser(string Email)
         {
             var user = await userManager.FindByNameAsync(Email);
-            if (await userManager.IsInRoleAsync(user, "User")&& user.Confirmed != Confirmed.block)
+            if (await userManager.IsInRoleAsync(user, "User") && user.Confirmed != Confirmed.block)
             {
                 var Code = new Random().Next(1234, 9999);
                 var UserCode = _contect.UserCodeConfierm.SingleOrDefault(i => i.UserId == user.Id && i.Type == Codetype.PasswordUser);
@@ -369,7 +369,7 @@ namespace K_Api202001.ApiControler
                 else
                     Sealler.Confirmed = Confirmed.Reject;
                 await userManager.UpdateAsync(Sealler);
-                AlertNotifiction.SendEmail(Sealler.Email, " Conform Account", _SmtpSettings, $"Dear  {Sealler. UserName }  <br> Acount is  "+ Sealler.Confirmed.ToString());
+                AlertNotifiction.SendEmail(Sealler.Email, " Conform Account", _SmtpSettings, $"Dear  {Sealler.UserName }  <br> Acount is  " + Sealler.Confirmed.ToString());
 
                 return Ok(new { Sealler.Id });
             }
@@ -387,7 +387,10 @@ namespace K_Api202001.ApiControler
                 {
                     if (await userManager.IsInRoleAsync(Logger, "Sealler") && Logger.Confirmed == Confirmed.approved)
                     {
-                        var Sealler = _contect.Seallers.SingleOrDefault(i => i.id == Logger.Id);
+                        var Sealler = _contect.Seallers
+                            .Include(i=>i.zone)
+                            .Include(i=>i.City)
+                            .SingleOrDefault(i => i.id == Logger.Id);
                         if (Sealler != null)
                         {
                             Sealler.projectName = model.projectName;
@@ -398,7 +401,9 @@ namespace K_Api202001.ApiControler
                             Sealler.CityId = model.CityId;
                             _contect.SaveChanges();
 
-
+                            var City = _contect.Cities.SingleOrDefault(i => i.id == Sealler.CityId);
+                            var zone = _contect.Zones.SingleOrDefault(i => i.id == Sealler.zoneId);
+                            var ProJectType = _contect.ProJectType.SingleOrDefault(i => i.id == Sealler.ProJectTypeId);
 
                             return Ok(new
                             {
@@ -412,9 +417,9 @@ namespace K_Api202001.ApiControler
                                 Sealler.ProJectTypeId,
                                 Sealler.CityId,
                                 Sealler.zoneId,
-                                ProJectType = Sealler.ProJectType == null ? null : new { Sealler.ProJectType.id, Sealler.ProJectType.Name, Sealler.ProJectType.AName },
-                                City = Sealler.City == null ? null : new { Sealler.City.id, Sealler.City.Name, Sealler.City.AName },
-                                zone = Sealler.zone == null ? null : new { Sealler.zone.id, Sealler.zone.Name, Sealler.zone.AName },
+                                ProJectType = ProJectType == null ? null : new { ProJectType.id, ProJectType.Name, ProJectType.AName },
+                                City = City == null ? null : new { City.id,City.Name, City.AName },
+                                zone = Sealler.zone == null ? null : new { zone.id, zone.Name, zone.AName },
 
                                 Role = userManager.GetRolesAsync(Logger).Result.FirstOrDefault()
 
@@ -816,7 +821,7 @@ namespace K_Api202001.ApiControler
         }
 
         [Authorize]
-        [HttpGet("block")]
+        [HttpPost("block")]
         public async Task<IActionResult> GetAcountBlock(AcountBlockModelView model)
         {
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
@@ -826,17 +831,25 @@ namespace K_Api202001.ApiControler
                 var Acount = await userManager.FindByIdAsync(model.AcountId);
                 if (Acount != null)
                 {
-                    if (model.block)
-                        Acount.Confirmed = Confirmed.approved;
-                    else
-                        Acount.Confirmed = Confirmed.Reject;
-                    await userManager.UpdateAsync(Acount);
-                    return Ok(new
+                    if (Acount.Confirmed == Confirmed.Reject || Acount.Confirmed == Confirmed.Reject)
                     {
-                        Acount.Id,
-                        Acount.UserName
+                        return BadRequest("Acount is " + Acount.Confirmed);
+                    }
+                    else
+                    {
+                        if (model.block)
+                            Acount.Confirmed = Confirmed.block;
+                        else
+                            Acount.Confirmed = Confirmed.approved;
+                        await userManager.UpdateAsync(Acount);
+                        return Ok(new
+                        {
+                            Acount.Id,
+                            Acount.UserName
 
-                    });
+                        });
+                    }
+                      
                 }
                 else return NotFound();
             }

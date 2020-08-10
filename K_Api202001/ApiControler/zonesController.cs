@@ -24,6 +24,14 @@ namespace K_Api202001.ApiControler
             _context = context;
         }
 
+        [HttpGet("AllZones(/CityId")]
+        public async Task<IActionResult> AllZones(int CityId)
+        {
+            var Zones = _context.Zones.Where(i => i.Cityid == CityId).Select(i => new { i.id, i.Name, i.AName, i.Cityid }).ToList();
+            return Ok(Zones);
+            // Pagenation
+        }
+
         // GET: api/zones
         [HttpGet("City/CityId")]
         public async Task<IActionResult> GetZones(  int CityId, int currentPage)

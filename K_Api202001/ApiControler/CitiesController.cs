@@ -30,6 +30,14 @@ namespace K_Api202001.ApiControler
             _context = context;
         }
 
+        [HttpGet("AllCities")]
+        public async Task<IActionResult> GetCities()
+        {
+
+            var Cities = _context.Cities.Select(i => new { i.id, i.AName, i.Name }).ToList();
+            return Ok(Cities);
+        }
+
         // GET: api/Cities
         [HttpGet]
         public async Task<IActionResult> GetCities( int currentPage)

@@ -47,7 +47,7 @@ namespace K_Api202001.ApiControler
             _SmtpSettings.FromAddress = configuration["Smtp:FromAddress"];
 
         }
-
+           
 
         [HttpPost("orderStatusList")]
         public async Task<IActionResult> GetOrders(orderstateview model)
@@ -825,7 +825,7 @@ namespace K_Api202001.ApiControler
                     new
                     {
                        // ReceiptCode.ID,
-                        ReceiptCode.Code ,
+                         ReceiptCode.Code ,
                          ReceiptCode.OrderId ,
                          ReceiptCode.ExperDate,
 
