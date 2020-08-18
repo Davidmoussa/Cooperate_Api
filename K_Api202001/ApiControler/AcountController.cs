@@ -63,6 +63,7 @@ namespace K_Api202001.ApiControler
                     PhoneNumber = model.Phon,
                     Email = model.Email,
                     Confirmed = Confirmed.non,
+                    Block =false
                 };
 
                 try
@@ -149,7 +150,7 @@ namespace K_Api202001.ApiControler
         public async Task<IActionResult> GetConformUser(string Email)
         {
             var user = await userManager.FindByNameAsync(Email);
-            if (await userManager.IsInRoleAsync(user, "User") && user.Confirmed != Confirmed.block)
+            if (await userManager.IsInRoleAsync(user, "User") && user.Confirmed != Confirmed.block && !user.Block)
             {
                 var Code = new Random().Next(1234, 9999);
                 var UserCode = _contect.UserCodeConfierm.SingleOrDefault(i => i.UserId == user.Id && i.Type == Codetype.PasswordUser);
@@ -191,7 +192,7 @@ namespace K_Api202001.ApiControler
                 if (User != null)
                 {
 
-                    if (await userManager.IsInRoleAsync(User, "User") && User.Confirmed != Confirmed.block)
+                    if (await userManager.IsInRoleAsync(User, "User") && User.Confirmed != Confirmed.block && !User.Block)
                     {
                         var Code = _contect.UserCodeConfierm.SingleOrDefault(i => i.UserId == User.Id && i.Code == model.Code && i.ExperdDate >= DateTime.Now);
                         if (Code != null)
@@ -264,7 +265,7 @@ namespace K_Api202001.ApiControler
 
                 if (Logger != null)
                 {
-                    if (await userManager.IsInRoleAsync(Logger, "User") && Logger.Confirmed != Confirmed.block)
+                    if (await userManager.IsInRoleAsync(Logger, "User") && !Logger.Block)
                     {
                         return Ok();
                     }
@@ -357,9 +358,14 @@ namespace K_Api202001.ApiControler
             else return BadRequest();
         }
 
+        [Authorize]
         [HttpPost("Sealler/Confierm")]
         public async Task<IActionResult> ConfiermSealler(SeallerCodeConfiermModelView model)
         {
+            var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+            if (!await userManager.IsInRoleAsync(user, "Adman") && user.Block) return Unauthorized();
+           
+
             var Sealler = await userManager.FindByIdAsync(model.SeallerId);
             if (Sealler == null) return NotFound();
             if (await userManager.IsInRoleAsync(Sealler, "Sealler"))
@@ -385,7 +391,7 @@ namespace K_Api202001.ApiControler
                 if (Logger == null) return Unauthorized();
                 if (Logger != null)
                 {
-                    if (await userManager.IsInRoleAsync(Logger, "Sealler") && Logger.Confirmed == Confirmed.approved)
+                    if (await userManager.IsInRoleAsync(Logger, "Sealler") && Logger.Confirmed == Confirmed.approved &&!Logger.Block)
                     {
                         var Sealler = _contect.Seallers
                             .Include(i=>i.zone)
@@ -468,7 +474,7 @@ namespace K_Api202001.ApiControler
                   signingCredentials: new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256)
                 );
 
-                if (await userManager.IsInRoleAsync(user, "User") &&user.Confirmed!=Confirmed.block)
+                if (await userManager.IsInRoleAsync(user, "User") &&user.Confirmed!=Confirmed.block  && !user.Block)
                 {
                     var User = _contect.Users.Include(i => i.UserIdentity).SingleOrDefault(i => i.id == user.Id);
                     if (User != null)
@@ -489,7 +495,7 @@ namespace K_Api202001.ApiControler
                     }
                     else return Unauthorized();
                 }
-                else if (await userManager.IsInRoleAsync(user, "Sealler")&& user.Confirmed == Confirmed.approved)
+                else if (await userManager.IsInRoleAsync(user, "Sealler")&& user.Confirmed == Confirmed.approved && !user.Block)
                 {
                     var Sealler = _contect.Seallers
                         .Include(i => i.City)
@@ -524,7 +530,7 @@ namespace K_Api202001.ApiControler
 
                     else return Unauthorized();
                 }
-                else if (await userManager.IsInRoleAsync(user, "Adman"))
+                else if (await userManager.IsInRoleAsync(user, "Adman") && !user.Block)
                 {
                     return Ok(new
                     {
@@ -551,7 +557,7 @@ namespace K_Api202001.ApiControler
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
 
             if (user == null) return Unauthorized();
-            if (await userManager.IsInRoleAsync(user, "User") && user?.Confirmed != Confirmed.block)
+            if (await userManager.IsInRoleAsync(user, "User") &&  !user.Block)
             {
                 return Ok(_contect.Users.Include(i => i.UserIdentity).Select(i => new
                 {
@@ -563,7 +569,7 @@ namespace K_Api202001.ApiControler
                     Role = userManager.GetRolesAsync(user).Result.FirstOrDefault()
                 }).SingleOrDefault(i => i.id == user.Id));
             }
-            else if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved)
+            else if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved && !user.Block)
             {
                 return Ok(_contect.Seallers.Include(i => i.UserIdentity).Select(i => new
                 {
@@ -581,7 +587,7 @@ namespace K_Api202001.ApiControler
 
                 }).SingleOrDefault(i => i.id == user.Id));
             }
-            else if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed != Confirmed.block)
+            else if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed != Confirmed.block && !user.Block)
             {
                 return Ok(_contect.Seallers.Include(i => i.UserIdentity).Select(i => new
                 {
@@ -610,7 +616,7 @@ namespace K_Api202001.ApiControler
         {
             var user = await userManager.FindByIdAsync(Id);
 
-            if (await userManager.IsInRoleAsync(user, "User") && user?.Confirmed != Confirmed.block)
+            if (await userManager.IsInRoleAsync(user, "User") && user?.Confirmed != Confirmed.block && !user.Block)
             {
                 return Ok(_contect.Users.Include(i => i.UserIdentity).Select(i => new
                 {
@@ -622,7 +628,7 @@ namespace K_Api202001.ApiControler
                     Role = userManager.GetRolesAsync(user).Result.FirstOrDefault()
                 }).SingleOrDefault(i => i.id == user.Id));
             }
-            else if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved)
+            else if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved && !user.Block)
             {
                 return Ok(_contect.Seallers.Include(i => i.UserIdentity).Select(i => new
                 {
@@ -650,7 +656,7 @@ namespace K_Api202001.ApiControler
         {
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
 
-            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed != Confirmed.block)
+            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed != Confirmed.block &&! user.Block)
             {
                 var Seallers = _contect.Seallers.Include(i => i.UserIdentity).OrderByDescending(i => i.Hdate).Select(i => new
                 {
@@ -684,7 +690,7 @@ namespace K_Api202001.ApiControler
         {
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
 
-            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed != Confirmed.block)
+            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed != Confirmed.block && !user.Block)
             {
                 var User = _contect.Users.Include(i => i.UserIdentity).Select(i => new
                 {
@@ -717,7 +723,7 @@ namespace K_Api202001.ApiControler
         {
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
 
-            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed != Confirmed.block)
+            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed != Confirmed.block && !user.Block)
             {
                 var User = _contect.Users
                     .Where(i=>i.id== Search || i.Name==Search || i.AName == Search || i.UserIdentity.Email == Search )
@@ -751,7 +757,7 @@ namespace K_Api202001.ApiControler
         {
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
 
-            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed != Confirmed.block)
+            if (await userManager.IsInRoleAsync(user, "Adman") && !user.Block)
             {
                 var Seallers = _contect.Seallers.
                       Where(i => i.id == Search || i.projectAName == Search || i.projectName == Search || i.UserIdentity.Email == Search
@@ -790,7 +796,7 @@ namespace K_Api202001.ApiControler
         {
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
 
-            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed != Confirmed.block)
+            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed != Confirmed.block && !user.Block)
             {
                 var Seallers = _contect.Seallers.
                       Where(i => i.UserIdentity.Confirmed == Confirmed.non).OrderByDescending(i => i.Hdate).Select(i => new
@@ -820,13 +826,84 @@ namespace K_Api202001.ApiControler
 
         }
 
+
+        [Authorize]
+        [HttpGet("Users/block")]
+        public async Task<IActionResult> GetAcountABlock(int currentPage)
+        {
+            var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+
+            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed != Confirmed.block && !user.Block)
+            {
+                var User = _contect.Users.Where(i=>i.UserIdentity.Block).Include(i => i.UserIdentity).Select(i => new
+                {
+                    i.id,
+                    i.Name,
+                    i.AName,
+                    i.UserIdentity.Email,
+                    i.UserIdentity.PhoneNumber,
+                    i.UserIdentity.Confirmed,
+                    loginName = i.UserIdentity.UserName,
+                    Role = "User"
+                }).ToList();
+
+                pageCount = (int)Math.Ceiling(decimal.Divide(User.Count, itemCount));
+                // if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+                if (User.Count == 0) return NotFound();
+                else return Ok(new { itemCount, pageCount, currentPage, Data = User.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
+
+            }
+
+
+            else return Unauthorized();
+
+        }
+
+
+
+        [Authorize]
+        [HttpGet("Seallers/block")]
+        public async Task<IActionResult> GetAcountBlock( int currentPage)
+        {
+            var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+
+            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed != Confirmed.block && !user.Block) { 
+                var Seallers = _contect.Seallers.
+                         Where(i => i.UserIdentity.Block).OrderByDescending(i => i.Hdate).Select(i => new
+                         {
+                             i.id,
+                             i.projectAName,
+                             i.projectName,
+                             i.description,
+
+                             i.UserIdentity.Email,
+                             i.UserIdentity.PhoneNumber,
+                             ProJectType = i.ProJectType == null ? null : new { i.ProJectType.id, i.ProJectType.Name, i.ProJectType.AName },
+                             City = i.City == null ? null : new { i.City.id, i.City.Name, i.City.AName },
+                             zone = i.zone == null ? null : new { i.zone.id, i.zone.Name, i.zone.AName },
+                             i.UserIdentity.Confirmed,
+                             loginName = i.UserIdentity.UserName,
+                             Role = "Sealler"
+                         }).ToList();
+            pageCount = (int)Math.Ceiling(decimal.Divide(Seallers.Count, itemCount));
+            // if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
+            if (Seallers.Count == 0) return NotFound();
+            else return Ok(new { itemCount, pageCount, currentPage, Data = Seallers.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
+
+        }
+
+            else return Unauthorized();
+    }
+
+
+
         [Authorize]
         [HttpPost("block")]
         public async Task<IActionResult> GetAcountBlock(AcountBlockModelView model)
         {
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
 
-            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed != Confirmed.block)
+            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed != Confirmed.block && !user.Block)
             {
                 var Acount = await userManager.FindByIdAsync(model.AcountId);
                 if (Acount != null)
@@ -837,10 +914,9 @@ namespace K_Api202001.ApiControler
                     }
                     else
                     {
-                        if (model.block)
-                            Acount.Confirmed = Confirmed.block;
-                        else
-                            Acount.Confirmed = Confirmed.approved;
+                      
+                            Acount.Block = model.block;
+                        
                         await userManager.UpdateAsync(Acount);
                         return Ok(new
                         {

@@ -66,7 +66,7 @@ namespace K_Api202001.ApiControler
         public async Task<IActionResult> PutNews(int id, News news)
         {
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
-            if (await userManager.IsInRoleAsync(user, "Adman"))
+            if (await userManager.IsInRoleAsync(user, "Adman") && !user.Block)
             {
 
 
@@ -105,7 +105,7 @@ namespace K_Api202001.ApiControler
         public async Task<ActionResult<News>> PostNews(News news)
         {
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
-            if (await userManager.IsInRoleAsync(user, "Adman"))
+            if (await userManager.IsInRoleAsync(user, "Adman") && !user.Block)
             {
 
 

@@ -55,7 +55,7 @@ namespace K_Api202001.ApiControler
 
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
             if (user == null) return Unauthorized();
-            if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved)
+            if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved && !user.Block)
             {
                 var order = _contect.Orders.Where(i => i.SeallerId == user.Id && model. orderStatus.Count == 0 ? true : model.orderStatus.Contains(i.orderStatus))
                      .Include(i => i.User)
@@ -136,7 +136,7 @@ namespace K_Api202001.ApiControler
         {
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
             if (user == null) return Unauthorized();
-            if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved)
+            if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved && !user.Block)
             {
                 var order = _contect.Orders.Where(i => i.SeallerId == user.Id && orderStatus == null ? true : i.orderStatus == orderStatus)
                      .Include(i => i.User)
@@ -203,7 +203,7 @@ namespace K_Api202001.ApiControler
                 else return Ok(new { itemCount, pageCount, currentPage, Data = order.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
              
             }
-            else if (await userManager.IsInRoleAsync(user, "User") && user?.Confirmed == Confirmed.approved)
+            else if (await userManager.IsInRoleAsync(user, "User") && user?.Confirmed == Confirmed.approved && !user.Block)
             {
 
                 var order = _contect.Orders.Where(i => i.UserId == user.Id && orderStatus == null ? true : i.orderStatus == orderStatus)
@@ -271,7 +271,7 @@ namespace K_Api202001.ApiControler
                 else return Ok(new { itemCount, pageCount, currentPage, Data = order.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
 
             }
-            else if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed == Confirmed.approved)
+            else if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed == Confirmed.approved && !user.Block)
             {
 
                 var order = _contect.Orders.Where(i =>  orderStatus == null ? true : i.orderStatus == orderStatus)
@@ -359,7 +359,7 @@ namespace K_Api202001.ApiControler
         {
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
             if (user == null) return Unauthorized();
-            if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved)
+            if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved && !user.Block)
             {
                 var order = _contect.Orders
                      .Include(i => i.User)
@@ -419,7 +419,7 @@ namespace K_Api202001.ApiControler
                 if (order == null) return NotFound();
                 return Ok(order);
             }
-            else if (await userManager.IsInRoleAsync(user, "User") && user?.Confirmed == Confirmed.approved)
+            else if (await userManager.IsInRoleAsync(user, "User") && user?.Confirmed == Confirmed.approved && !user.Block)
             {
 
                 var order = _contect.Orders
@@ -483,7 +483,7 @@ namespace K_Api202001.ApiControler
                 return Ok(order);
 
             }
-            else if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed == Confirmed.approved)
+            else if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed == Confirmed.approved && !user.Block)
             {
 
                
@@ -566,7 +566,7 @@ namespace K_Api202001.ApiControler
         {
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
             if (user == null) return Unauthorized();
-            if (await userManager.IsInRoleAsync(user, "User") && user?.Confirmed == Confirmed.approved)
+            if (await userManager.IsInRoleAsync(user, "User") && user?.Confirmed == Confirmed.approved && !user.Block)
             {
 
                 var Prodect = _contect.products
@@ -666,7 +666,7 @@ namespace K_Api202001.ApiControler
             {
                 var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
                 if (user == null) return Unauthorized();
-                if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved)
+                if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved && !user.Block)
                 {
                     var order = _contect.Orders.SingleOrDefault(i => i.Id == model.OrderId && i.SeallerId == user.Id);
                     if (order == null) return NotFound();
@@ -726,7 +726,7 @@ namespace K_Api202001.ApiControler
                         });
 
                 }
-                else if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed == Confirmed.approved)
+                else if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed == Confirmed.approved && !user.Block)
                 {
                     var order = _contect.Orders.SingleOrDefault(i => i.Id == model.OrderId);
                     if (order == null) return NotFound();
@@ -804,7 +804,7 @@ namespace K_Api202001.ApiControler
         {
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
             if (user == null) return Unauthorized();
-            if (await userManager.IsInRoleAsync(user, "User") && user?.Confirmed == Confirmed.approved)
+            if (await userManager.IsInRoleAsync(user, "User") && user?.Confirmed == Confirmed.approved && !user.Block)
             {
                 var order = _contect.Orders.SingleOrDefault(i => i.Id ==Id &&i.UserId==user.Id);
                 if (order == null) return NotFound();
@@ -843,7 +843,7 @@ namespace K_Api202001.ApiControler
             var ReceiptCode = new ReceiptCode();
          var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
             if (user == null) return Unauthorized();
-            if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved)
+            if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved && !user.Block)
             {
                  order = _contect.Orders.SingleOrDefault(i => i.Id == model.OrderId);
                 if (order == null) return NotFound();

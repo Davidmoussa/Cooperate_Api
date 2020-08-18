@@ -75,6 +75,10 @@ namespace K_Api202001.ApiControler
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCity(int id, City city)
         {
+
+            var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+            if (!await userManager.IsInRoleAsync(user, "Adman") && user.Block) return Unauthorized();
+
             if (id != city.id)
             {
                 return BadRequest();
@@ -107,6 +111,9 @@ namespace K_Api202001.ApiControler
         [HttpPost]
         public async Task<ActionResult<City>> PostCity(City city)
         {
+            var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+            if (!await userManager.IsInRoleAsync(user, "Adman") && user.Block) return Unauthorized();
+
             _context.Cities.Add(city);
             await _context.SaveChangesAsync();
 
@@ -117,6 +124,9 @@ namespace K_Api202001.ApiControler
         [HttpDelete("{id}")]
         public async Task<ActionResult<City>> DeleteCity(int id)
         {
+            var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+            if (!await userManager.IsInRoleAsync(user, "Adman") && user.Block) return Unauthorized();
+
             var city = await _context.Cities.FindAsync(id);
             if (city == null)
             {
