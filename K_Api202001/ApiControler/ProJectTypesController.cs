@@ -88,37 +88,51 @@ namespace K_Api202001.ApiControler
         [HttpPost]
         public async Task<IActionResult> PostProJectType(ProJectTypeModelView Model)
         {
-            var ProJectType = new ProJectType();
-            ProJectType.AName = Model.AName;
-            ProJectType.Name = Model.Name;
 
-            _context.ProJectType.Add(ProJectType);
-            _context.SaveChanges();
-            _context.ProForm.AddRange(Model.ProForm.Select(i => new ProForm() { 
-            
-                Name= i.Name,
-                AName= i.AName,
-                Type= i.Type,
-                Required= i.Required,
-                ProJectTypeId= ProJectType.id
-            }));
+            var count = _context.ProJectType.Where(i => i.AName == Model.AName || i.Name == Model.Name).ToList().Count;
+            if(count==0)
+            {
 
+                var ProJectType = new ProJectType();
+                ProJectType.AName = Model.AName;
+                ProJectType.Name = Model.Name;
 
+                _context.ProJectType.Add(ProJectType);
+                _context.SaveChanges();
+                _context.ProForm.AddRange(Model.ProForm.Select(i => new ProForm()
+                {
 
-            _context.SaveChanges();
-           
-
-
-
+                    Name = i.Name,
+                    AName = i.AName,
+                    Type = i.Type,
+                    Required = i.Required,
+                    ProJectTypeId = ProJectType.id
+                }));
 
 
-            return Ok( new {
 
-                ProJectType.id,
-                ProJectType.Name,
-                ProJectType.AName,
-                ProForm=  ProJectType.ProForm.Select(i=> new { i.AName, i.Id, i.Name, i.Type,i.Required }).ToList(),
-            });
+                _context.SaveChanges();
+
+
+
+
+
+
+                return Ok(new
+                {
+
+                    ProJectType.id,
+                    ProJectType.Name,
+                    ProJectType.AName,
+                    ProForm = ProJectType.ProForm.Select(i => new { i.AName, i.Id, i.Name, i.Type, i.Required }).ToList(),
+                });
+
+            }
+            else
+            {
+                return BadRequest("Name And AName is  unique value");
+            }
+
         }
 
         // DELETE: api/ProJectTypes/5

@@ -827,68 +827,56 @@ namespace K_Api202001.ApiControler
         }
 
 
-        [Authorize]
-        [HttpGet("Users/block")]
-        public async Task<IActionResult> GetAcountABlock(int currentPage)
-        {
-            var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
-
-            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed != Confirmed.block && !user.Block)
-            {
-                var User = _contect.Users.Where(i=>i.UserIdentity.Block).Include(i => i.UserIdentity).Select(i => new
-                {
-                    i.id,
-                    i.Name,
-                    i.AName,
-                    i.UserIdentity.Email,
-                    i.UserIdentity.PhoneNumber,
-                    i.UserIdentity.Confirmed,
-                    loginName = i.UserIdentity.UserName,
-                    Role = "User"
-                }).ToList();
-
-                pageCount = (int)Math.Ceiling(decimal.Divide(User.Count, itemCount));
-                // if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
-                if (User.Count == 0) return NotFound();
-                else return Ok(new { itemCount, pageCount, currentPage, Data = User.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
-
-            }
-
-
-            else return Unauthorized();
-
-        }
-
-
+       
 
         [Authorize]
-        [HttpGet("Seallers/block")]
+        [HttpGet("block")]
         public async Task<IActionResult> GetAcountBlock( int currentPage)
         {
             var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
 
-            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed != Confirmed.block && !user.Block) { 
-                var Seallers = _contect.Seallers.
-                         Where(i => i.UserIdentity.Block).OrderByDescending(i => i.Hdate).Select(i => new
-                         {
-                             i.id,
-                             i.projectAName,
-                             i.projectName,
-                             i.description,
+            if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed != Confirmed.block && !user.Block) {
 
-                             i.UserIdentity.Email,
-                             i.UserIdentity.PhoneNumber,
-                             ProJectType = i.ProJectType == null ? null : new { i.ProJectType.id, i.ProJectType.Name, i.ProJectType.AName },
-                             City = i.City == null ? null : new { i.City.id, i.City.Name, i.City.AName },
-                             zone = i.zone == null ? null : new { i.zone.id, i.zone.Name, i.zone.AName },
-                             i.UserIdentity.Confirmed,
-                             loginName = i.UserIdentity.UserName,
-                             Role = "Sealler"
-                         }).ToList();
-            pageCount = (int)Math.Ceiling(decimal.Divide(Seallers.Count, itemCount));
+
+                var Seallers = _contect.Seallers
+                             .Select(i => new
+                             {
+                                 Id = i.id,
+                                 Logname=i.UserIdentity.UserName,
+                                 AName = i.projectAName,
+                                 Name = i.projectName,
+                                 i.UserIdentity.Email,
+                                 i.UserIdentity.PhoneNumber,
+                                 i.UserIdentity.Block,
+                                 i.UserIdentity.Confirmed,
+                                 i.Hdate,
+                                 Role = "Sealler"
+                             }).ToList();
+
+
+
+                var Users = _contect.Users
+         .Select(i => new
+         {
+             Id = i.id,
+             Logname = i.UserIdentity.UserName,
+             AName = i.AName,
+             Name = i.Name,
+             i.UserIdentity.Email,
+             i.UserIdentity.PhoneNumber,
+             i.UserIdentity.Block,
+             i.UserIdentity.Confirmed,
+             i.Hdate,
+             Role = "User"
+         }).ToList();
+
+
+                Seallers.AddRange(Users);
+                 
+                pageCount = (int)Math.Ceiling(decimal.Divide(Seallers.Count, itemCount));
             // if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
             if (Seallers.Count == 0) return NotFound();
-            else return Ok(new { itemCount, pageCount, currentPage, Data = Seallers.Skip((currentPage) * itemCount).Take(itemCount).ToList() });
+            else return Ok(new { itemCount, pageCount, currentPage, Data = Seallers.OrderByDescending(i=>i.Hdate).Skip((currentPage) * itemCount).Take(itemCount).ToList() });
 
         }
 
@@ -908,12 +896,7 @@ namespace K_Api202001.ApiControler
                 var Acount = await userManager.FindByIdAsync(model.AcountId);
                 if (Acount != null)
                 {
-                    if (Acount.Confirmed == Confirmed.Reject || Acount.Confirmed == Confirmed.Reject)
-                    {
-                        return BadRequest("Acount is " + Acount.Confirmed);
-                    }
-                    else
-                    {
+                   
                       
                             Acount.Block = model.block;
                         
@@ -921,10 +904,18 @@ namespace K_Api202001.ApiControler
                         return Ok(new
                         {
                             Acount.Id,
-                            Acount.UserName
+                            Acount.UserName,
+                            Acount.Email,
+                            Acount.PhoneNumber,
+                            Acount.Block,
+                            Acount.Confirmed,
+                            role=  userManager.GetRolesAsync(Acount).Result.FirstOrDefault()
+
+
+
 
                         });
-                    }
+                    
                       
                 }
                 else return NotFound();
