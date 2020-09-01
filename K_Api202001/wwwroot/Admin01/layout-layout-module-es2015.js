@@ -14858,7 +14858,7 @@ CarouselModule.ɵinj = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineInj
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony default export */ __webpack_exports__["default"] = ("<div class=\"modal-header\">\n  <h4 class=\"modal-title pull-left\">Add New Category</h4>\n\n\n</div>\n\n\n<form id=\"add-form\" [formGroup]=\"addNewCategoryForm\" (ngSubmit)=\"logValue(f) \" #f=\"ngForm\">\n\n\n  <div class=\"modal-body\">\n\n    <div class=\"form-group\">\n      <label class=\"col-sm-4 control-label\">Ar-Name</label>\n\n      <div class=\"col-sm-10\">\n        <input formControlName=\"aName\" type=\"text\" placeholder=\"ar-name\" class=\"form-control\">\n\n\n      </div>\n    </div>\n    <div class=\"form-group\">\n      <label class=\"col-sm-4 control-label\">Name</label>\n\n      <div class=\"col-sm-10\">\n        <input formControlName=\"name\" type=\"text\" placeholder=\"name\" class=\"form-control\">\n      </div>\n    </div>\n  </div>\n  <div class=\"row justify-content-center\">\n    <div class=\"col-6\">\n      <section class=\"container border mb-4 p-3\" formArrayName=\"proForm\"  \n        *ngFor=\"let option of addNewCategoryForm.get('proForm').controls; let i = index;\">\n        <div [formGroupName]=\"i\">\n          <div class=\"row\">\n            <div class=\"col-6\">\n              <h4>Option {{i + 1}}</h4>\n              \n            </div>\n            <div class=\"col-6 text-right\">\n              <button  type=\"button\" class=\"btn btn-danger btn-sm\" (click)=\"removeOption(i)\">Remove</button>\n          </div>\n            \n\n          </div>\n          <div class=\"row\">\n            <div class=\"col-6\">\n              <div class=\"form-group\">\n                <label>Name</label>\n\n\n                <input   type=\"text\" class=\"form-control\" formControlName=\"name\" placeholder=\"name\" />\n\n              </div>\n            </div>\n            <div class=\"col-6\">\n              <div class=\"form-group\">\n                <label>Ar-Name</label>\n                <input  type=\"text\" class=\"form-control\" formControlName=\"aName\" placeholder=\"ar-Name\" />\n\n              </div>\n            </div>\n          </div>\n          <div class=\"row\">\n            <div class=\"col-6\">\n              <div class=\"form-group\">\n                <label>Type</label>\n                <select  class=\"form-control\" formControlName=\"type\" placeholder=\"type\">\n                  <option [ngValue]=0>Text</option>\n                  <option [ngValue]=1>Number</option>\n                </select>\n\n\n              </div>\n\n            </div>\n            <div class=\"col-6\">\n              <div class=\"form-group\">\n                <label>Required</label>\n                <input  class=\"form-control\" formControlName=\"required\" placeholder=\"required\" />\n\n\n\n              </div>\n\n            </div>\n          </div>\n\n\n\n        </div>\n\n      </section>\n\n\n\n    </div>\n  </div>\n\n  <div class=\"footer\">\n    <button class=\"btn btn-success btn-block\" (click)=\"addNewField()\" > +Add New Field </button>\n\n    <button (click)=\" logValue()\" class=\"btn btn-primary btn-block\">Save</button>\n  </div>\n  `\n\n\n</form>\n<pre>{{addNewCategoryForm.value | json}}</pre>");
+/* harmony default export */ __webpack_exports__["default"] = ("<div class=\"modal-header\">\n  <h4 class=\"modal-title pull-left\">Add New Category</h4>\n\n\n</div>\n\n\n<form id=\"add-form\" [formGroup]=\"addNewCategoryForm\" (ngSubmit)=\"logValue(f) \" #f=\"ngForm\">\n\n\n  <div class=\"modal-body\">\n\n    <div class=\"form-group\">\n      <label class=\"col-sm-4 control-label\">Ar-Name</label>\n\n      <div class=\"col-sm-10\">\n        <input formControlName=\"aName\" type=\"text\" placeholder=\"ar-name\" class=\"form-control\">\n\n\n      </div>\n    </div>\n    <div class=\"form-group\">\n      <label class=\"col-sm-4 control-label\">Name</label>\n\n      <div class=\"col-sm-10\">\n        <input formControlName=\"name\" type=\"text\" placeholder=\"name\" class=\"form-control\">\n      </div>\n    </div>\n  </div>\n  <div class=\"row justify-content-center\">\n    <div class=\"col-6\">\n      <section class=\"container border mb-4 p-3\" formArrayName=\"proForm\"\n        *ngFor=\"let option of addNewCategoryForm.get('proForm').controls; let i = index;\">\n        <div [formGroupName]=\"i\">\n          <div class=\"row\">\n            <div class=\"col-6\">\n              <h4>Option {{i + 1}}</h4>\n\n            </div>\n            <div class=\"col-6 text-right\">\n              <button type=\"button\" class=\"btn btn-danger btn-sm\" (click)=\"removeOption(i)\">Remove</button>\n            </div>\n\n\n          </div>\n          <div class=\"row\">\n            <div class=\"col-6\">\n              <div class=\"form-group\">\n                <label>Name</label>\n\n\n                <input type=\"text\" class=\"form-control\" formControlName=\"name\" placeholder=\"name\" />\n\n              </div>\n            </div>\n            <div class=\"col-6\">\n              <div class=\"form-group\">\n                <label>Ar-Name</label>\n                <input type=\"text\" class=\"form-control\" formControlName=\"aName\" placeholder=\"ar-Name\" />\n\n              </div>\n            </div>\n          </div>\n          <div class=\"row\">\n            <div class=\"col-6\">\n              <div class=\"form-group\">\n                <label>Type</label>\n                <select class=\"form-control\" formControlName=\"type\" placeholder=\"type\">\n                  <option [ngValue]=0>Text</option>\n                  <option [ngValue]=1>Number</option>\n                </select>\n\n\n              </div>\n\n            </div>\n            <!-- <div class=\"col-6\">\n              <div class=\"form-group\">\n                <label>Required</label>\n                <input class=\"form-control\" formControlName=\"required\" placeholder=\"required\" />\n\n\n\n              </div>\n\n            </div> -->\n          </div>\n\n\n\n        </div>\n\n      </section>\n\n\n\n    </div>\n  </div>\n\n  <div class=\"footer\">\n    <button class=\"btn btn-success btn-block\" type=\"button\" (click)=\"addNewField()\"> +Add New Field </button>\n\n    <button type=\"submit\" class=\"btn btn-primary btn-block\">Save</button>\n  </div>\n\n\n</form>\n<!-- <pre>{{addNewCategoryForm.value | json}}</pre> -->");
 
 /***/ }),
 
@@ -14871,7 +14871,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony default export */ __webpack_exports__["default"] = ("<div class=\"container\">\n    <h1>Update Post</h1>\n\n    <form  *ngIf=\"post\" [formGroup]=\"EditCategoryForm\" (ngSubmit)=\"submit() \">\n\n\n        <div class=\"modal-body\">\n      \n          <div class=\"form-group\">\n            <label class=\"col-sm-4 control-label\">Ar-Name</label>\n      \n            <div class=\"col-sm-10\">\n              <input id=\"aName\" \n              [(ngModel)]=\"post.aName\"\n              formControlName=\"aName\" type=\"text\" placeholder=\"ar-name\" class=\"form-control\">\n      \n      \n            </div>\n          </div>\n          <div class=\"form-group\">\n            <label class=\"col-sm-4 control-label\">Name</label>\n      \n            <div class=\"col-sm-10\">\n              <input               [(ngModel)]=\"post.name\"\n              id=\"name\"  formControlName=\"name\" type=\"text\" placeholder=\"name\" class=\"form-control\">\n            </div>\n          </div>\n        </div>\n        \n        <div   class=\"row justify-content-center\">\n          <div class=\"col-6\">\n            <section   formArrayName=\"proForm\"\n            *ngFor=\"let option of EditCategoryForm.get('proForm').controls; let i = index;\"  class=\"container border mb-4 p-3\" >\n              <div [formGroupName]=\"i\">\n                <div class=\"row\">\n                  <div class=\"col-6\">\n                    <h4    >Option {{i + 1}}</h4>\n                    \n                  </div>\n                  \n                </div>\n                <div class=\"row\">\n                  <div class=\"col-6\">\n                    <div class=\"form-group\">\n                      <label>Name</label>\n      \n      \n                      <input id=\"name\"    [(ngModel)]=\"option.name\"\n                      type=\"text\" class=\"form-control\" formControlName=\"name\" placeholder=\"name\" />\n      \n                    </div>\n                  </div>\n                  <div class=\"col-6\">\n                    <div class=\"form-group\">\n                      <label>Ar-Name</label>\n                      <input id=\"aName\"   \n                      type=\"text\" class=\"form-control\" formControlName=\"aName\" placeholder=\"ar-Name\" />\n      \n                    </div>\n                  </div>\n                </div>\n                <div class=\"row\">\n                  <div class=\"col-6\">\n                    <div class=\"form-group\">\n                      <label>Type</label>\n                      <select id=\"type\"  \n                      class=\"form-control\" formControlName=\"type\" placeholder=\"type\">\n                        <option [ngValue]=0>Text</option>\n                        <option [ngValue]=1>Number</option>\n                      </select>\n      \n      \n                    </div>\n      \n                  </div>\n                  <div class=\"col-6\">\n                    <div class=\"form-group\">\n                      <label>Required</label>\n                      <input id=\"required\" [value]=\"option.required\"\n                      class=\"form-control\" formControlName=\"required\" placeholder=\"required\" />\n      \n      \n      \n                    </div>\n      \n                  </div>\n                </div>\n      \n      \n      \n              </div>\n      \n            </section>\n      \n      \n      \n          </div>\n        </div>\n      \n        <div class=\"footer\">\n          <button class=\"btn btn-success btn-block\" type=\"submit()\"> UpDate </button>\n      \n        </div>\n        `\n      \n      \n      </form>\n\n    \n</div>\n");
+/* harmony default export */ __webpack_exports__["default"] = ("<div class=\"container\">\n  <h1>Update Post</h1>\n\n  <form *ngIf=\"post\" [formGroup]=\"EditCategoryForm\" (ngSubmit)=\"submit() \">\n\n\n    <div class=\"modal-body\">\n\n      <div class=\"form-group\">\n        <label class=\"col-sm-4 control-label\">Ar-Name</label>\n\n        <div class=\"col-sm-10\">\n          <input id=\"aName\" formControlName=\"aName\" type=\"text\" placeholder=\"ar-name\" class=\"form-control\">\n\n\n        </div>\n      </div>\n      <div class=\"form-group\">\n        <label class=\"col-sm-4 control-label\">Name</label>\n\n        <div class=\"col-sm-10\">\n          <input id=\"name\" formControlName=\"name\" type=\"text\" placeholder=\"name\" class=\"form-control\">\n        </div>\n      </div>\n    </div>\n\n    <div class=\"row justify-content-center\">\n      <div class=\"col-6\">\n        <section formArrayName=\"proForm\" *ngFor=\"let option of EditCategoryForm.get('proForm').controls; let i = index;\"\n          class=\"container border mb-4 p-3\">\n          <div [formGroupName]=\"i\">\n            <div class=\"row\">\n              <div class=\"col-6\">\n                <h4>Option {{i + 1}}</h4>\n\n              </div>\n              <div class=\"col-6 text-right\">\n                <button type=\"button\" class=\"btn btn-danger btn-sm\" (click)=\"removeOption(i)\">Remove</button>\n              </div>\n\n            </div>\n            <div class=\"row\">\n              <div class=\"col-6\">\n                <div class=\"form-group\">\n                  <label>Name</label>\n\n\n                  <input id=\"name\" type=\"text\" class=\"form-control\" formControlName=\"name\" placeholder=\"name\" />\n\n                </div>\n              </div>\n              <div class=\"col-6\">\n                <div class=\"form-group\">\n                  <label>Ar-Name</label>\n                  <input id=\"aName\" type=\"text\" class=\"form-control\" formControlName=\"aName\" placeholder=\"ar-Name\" />\n\n                </div>\n              </div>\n            </div>\n            <div class=\"row\">\n              <div class=\"col-6\">\n                <div class=\"form-group\">\n                  <label>Type</label>\n                  <select id=\"type\" class=\"form-control\" formControlName=\"type\" placeholder=\"type\">\n                    <option [ngValue]=0>Text</option>\n                    <option [ngValue]=1>Number</option>\n                  </select>\n\n\n                </div>\n\n              </div>\n              <!-- <div class=\"col-6\">\n                <div class=\"form-group\">\n                  <label>Required</label>\n                  <input id=\"required\" [value]=\"option.required\" class=\"form-control\" formControlName=\"required\"\n                    placeholder=\"required\" />\n\n\n\n                </div>\n\n              </div> -->\n            </div>\n\n\n\n          </div>\n\n        </section>\n\n\n\n      </div>\n    </div>\n\n    <div class=\"footer\">\n      <button class=\"btn btn-success btn-block\" type=\"button\" (click)=\"addNewField()\"> +Add New Field </button>\n      <button class=\"btn btn-success btn-block\" type=\"submit\"> Update </button>\n\n    </div>\n    `\n\n\n  </form>\n\n\n</div>");
 
 /***/ }),
 
@@ -14923,7 +14923,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony default export */ __webpack_exports__["default"] = ("<div>\n  <h2 class=\"text-muted\">Products -details </h2>\n  \n\n    <div class=\"card \" >\n      <div class=\"row no-gutters\">\n        <div class=\"col-md-6 \"  >\n          <owl-carousel-o [options]=\"customOptions\">\n            <ng-container *ngFor=\"let x of data\">\n              <ng-template carouselSlide><img src=\"http://46.101.105.124/Upload/product/{{x.imgs.img}}\" width=\"80px\"> \n              </ng-template> \n              \n\n            </ng-container>\n            \n          </owl-carousel-o>\n        </div>\n        <div class=\"col-md-6\">\n          <div class=\"card-body text-white\"  style=\"background-color: grey;height: 100%;\">\n            <h5 class=\"card-title\">{{data.name}}</h5>\n            <p class=\"card-text\">{{data.description}}</p>\n          </div>\n        </div>\n      </div>\n    </div>\n\n\n\n\n\n  \n\n  \n</div>");
+/* harmony default export */ __webpack_exports__["default"] = ("<div>\n  <h2 class=\"text-muted\">Products -details </h2>\n\n\n  <div class=\"card \">\n    <div class=\"row no-gutters\" *ngIf=\"selectedProduct\">\n      <div class=\"col-md-12 \">\n        <owl-carousel-o [options]=\"customOptions\">\n          <ng-container *ngFor=\"let image of selectedProduct.imgs\">\n            <ng-template carouselSlide><img src=\"{{image.img}}\" width=\"80px\">\n            </ng-template>\n\n\n          </ng-container>\n\n        </owl-carousel-o>\n      </div>\n      <div class=\"col-md-12\">\n        <div class=\"card-body text-white\" style=\"background-color: grey;height: 100%;\">\n          <h5 class=\"card-title\">{{selectedProduct.name}}</h5>\n          <p class=\"card-text\">{{selectedProduct.description}}</p>\n        </div>\n      </div>\n    </div>\n  </div>\n\n\n\n\n\n\n\n\n</div>");
 
 /***/ }),
 
@@ -14967,7 +14967,8 @@ let AddCategoryComponent = class AddCategoryComponent {
             name: '',
             aName: '',
             proForm: [
-                { id: '',
+                {
+                    id: '',
                     aName: "",
                     name: "",
                     type: 0,
@@ -15076,14 +15077,34 @@ let EditCategoryComponent = class EditCategoryComponent {
         this.id = this.route.snapshot.params['id'];
         this.categoryService.find(this.id).subscribe((data) => {
             this.post = data;
+            this.EditCategoryForm = this.fb.group({
+                id: (parseInt(this.id.toString())),
+                name: ([this.post.name, _angular_forms__WEBPACK_IMPORTED_MODULE_2__["Validators"].required]),
+                aName: ([this.post.aName, _angular_forms__WEBPACK_IMPORTED_MODULE_2__["Validators"].required]),
+                proForm: this.fb.array([])
+            });
         });
-        this.EditCategoryForm = this.fb.group({
-            name: (['', _angular_forms__WEBPACK_IMPORTED_MODULE_2__["Validators"].required]),
-            aName: (['', _angular_forms__WEBPACK_IMPORTED_MODULE_2__["Validators"].required]),
-            proForm: this.fb.array([
-                this.setOptions()
-            ])
+        this.categoryService.getForm(this.id).subscribe((data) => {
+            console.log(data);
+            let control = this.EditCategoryForm.controls.proForm;
+            for (let i = 0; i < data.length; i++) {
+                control.push(this.fb.group({
+                    name: ([data[i].name, _angular_forms__WEBPACK_IMPORTED_MODULE_2__["Validators"].required]),
+                    aName: ([data[i].aName, _angular_forms__WEBPACK_IMPORTED_MODULE_2__["Validators"].required]),
+                    required: (data[i].required),
+                    type: (data[i].type),
+                    id: (data[i].id),
+                    proJectTypeId: (parseInt(this.id.toString()))
+                }));
+            }
+        }, (error) => {
+            console.log("Get form error");
+            console.log(error);
         });
+    }
+    removeOption(i) {
+        let control = this.EditCategoryForm.controls.proForm;
+        control.removeAt(i);
     }
     setOptions() {
         return this.fb.group({
@@ -15094,8 +15115,18 @@ let EditCategoryComponent = class EditCategoryComponent {
             type: (0),
         });
     }
+    addNewField() {
+        let control = this.EditCategoryForm.controls.proForm;
+        control.push(this.fb.group({
+            name: (['', _angular_forms__WEBPACK_IMPORTED_MODULE_2__["Validators"].required]),
+            aName: (['', _angular_forms__WEBPACK_IMPORTED_MODULE_2__["Validators"].required]),
+            required: (true),
+            type: (0),
+            proJectTypeId: (parseInt(this.id.toString()))
+        }));
+    }
     submit() {
-        this.categoryService.update(this.id, this.post).subscribe(res => {
+        this.categoryService.update(this.id, this.EditCategoryForm.value).subscribe(res => {
             console.log('updated successfully!');
             this.router.navigateByUrl('/category');
         });
@@ -15345,7 +15376,7 @@ const routes = [
                 path: 'products',
                 loadChildren: () => Promise.all(/*! import() | products-products-module */[__webpack_require__.e("common"), __webpack_require__.e("products-products-module")]).then(__webpack_require__.bind(null, /*! ./products/products.module */ "./src/app/layout/products/products.module.ts")).then((m) => m.ProductsModule)
             },
-            { path: 'products-details', component: _products_productsdetails_productsdetails_component__WEBPACK_IMPORTED_MODULE_4__["ProductsdetailsComponent"] },
+            { path: 'products-details/:id', component: _products_productsdetails_productsdetails_component__WEBPACK_IMPORTED_MODULE_4__["ProductsdetailsComponent"] },
             { path: '', redirectTo: 'category', pathMatch: 'prefix' },
             {
                 path: 'category',
@@ -15507,12 +15538,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/__ivy_ngcc__/fesm2015/core.js");
 /* harmony import */ var _shared_services_product_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../shared/services/product.service */ "./src/app/shared/services/product.service.ts");
+/* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @angular/router */ "./node_modules/@angular/router/__ivy_ngcc__/fesm2015/router.js");
+
 
 
 
 let ProductsdetailsComponent = class ProductsdetailsComponent {
-    constructor(productSrvice) {
+    constructor(productSrvice, route, router) {
         this.productSrvice = productSrvice;
+        this.route = route;
+        this.router = router;
         this.customOptions = {
             loop: true,
             mouseDrag: false,
@@ -15537,16 +15572,21 @@ let ProductsdetailsComponent = class ProductsdetailsComponent {
             },
             nav: true
         };
+        this.id = this.route.snapshot.params['id'];
         this.productSrvice.getAll().subscribe((result) => {
             this.data = result.data;
+            this.selectedProduct = this.data.find((element) => element.id == this.id);
             console.log('JSON Response = ', this.data);
+            console.log("Selected product: ", this.selectedProduct);
         });
     }
     ngOnInit() {
     }
 };
 ProductsdetailsComponent.ctorParameters = () => [
-    { type: _shared_services_product_service__WEBPACK_IMPORTED_MODULE_2__["ProductService"] }
+    { type: _shared_services_product_service__WEBPACK_IMPORTED_MODULE_2__["ProductService"] },
+    { type: _angular_router__WEBPACK_IMPORTED_MODULE_3__["ActivatedRoute"] },
+    { type: _angular_router__WEBPACK_IMPORTED_MODULE_3__["Router"] }
 ];
 ProductsdetailsComponent = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"])([
     Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Component"])({
@@ -15554,7 +15594,9 @@ ProductsdetailsComponent = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate
         template: Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__importDefault"])(__webpack_require__(/*! raw-loader!./productsdetails.component.html */ "./node_modules/raw-loader/dist/cjs.js!./src/app/layout/products/productsdetails/productsdetails.component.html")).default,
         styles: [Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__importDefault"])(__webpack_require__(/*! ./productsdetails.component.css */ "./src/app/layout/products/productsdetails/productsdetails.component.css")).default]
     }),
-    Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__metadata"])("design:paramtypes", [_shared_services_product_service__WEBPACK_IMPORTED_MODULE_2__["ProductService"]])
+    Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__metadata"])("design:paramtypes", [_shared_services_product_service__WEBPACK_IMPORTED_MODULE_2__["ProductService"],
+        _angular_router__WEBPACK_IMPORTED_MODULE_3__["ActivatedRoute"],
+        _angular_router__WEBPACK_IMPORTED_MODULE_3__["Router"]])
 ], ProductsdetailsComponent);
 
 
@@ -15601,6 +15643,10 @@ let CategoryService = class CategoryService {
     }
     find(id) {
         return this.http.get(`${this.apiUrl}/${id}`)
+            .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["catchError"])(this.handleError));
+    }
+    getForm(id) {
+        return this.http.get(`http://46.101.105.124/api/ProForms/${id}`)
             .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["catchError"])(this.handleError));
     }
     update(id, post) {

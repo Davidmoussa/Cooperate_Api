@@ -4167,6 +4167,8 @@ let CategoryComponent = class CategoryComponent {
         this.categorySrvice.delete(id).subscribe(res => {
             this.data = this.data.filter(item => item.id !== id);
             alert('Category deleted successfully!');
+        }, (error) => {
+            alert("There are producers that use this category");
         });
     }
     ngOnInit() {

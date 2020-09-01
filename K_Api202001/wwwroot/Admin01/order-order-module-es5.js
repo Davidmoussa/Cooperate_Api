@@ -21,7 +21,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     /* harmony default export */
 
 
-    __webpack_exports__["default"] = "<div [@routerTransition]>\n    <h2 class=\"text-muted\">Orders </h2>\n    <form>\n        <div class=\"form-row align-items-center\">\n\n            <div class=\"col-auto\">\n                <div class=\"form-group input-group\">\n                    <input class=\"form-control\" type=\"text\" />\n                    <div class=\"input-group-append\">\n                        <button class=\"btn btn-secondary\" type=\"button\"><i class=\"fa fa-search\"></i></button>\n                    </div>\n\n                </div>\n            </div>\n\n        </div>\n    </form>\n\n\n    <!-- /Table for orders -->\n    <div class=\"row\">\n        <div class=\"col col-xl-12\">\n            <div class=\"card mb-3\">\n                <table class=\"table table-hover table-bordered  text-center table-striped\">\n                    <thead>\n                        <tr>\n                            <th> #Id</th>\n                            <th> Created At</th>\n                            <th>Order Status</th>\n                            <th>Merchant Name</th>\n                            <th>Merchant City</th>\n                            <th>Customer Name</th>\n                            <th>Customer Phone</th>\n                            <th>Order Address</th>\n                            <th>Product #Id</th>\n                            <th>Product Name</th>\n                        </tr>\n\n                    </thead>\n                    <tbody>\n\n\n                        <tr *ngFor=\"let order of data\">\n                            <td>{{ order.id }}</td>\n                            <td>{{ order.date }}</td>\n                            <td>{{ order.orderStatus }}</td>\n                            <td>{{ order.sealler.projectAName }}</td>\n                            <td>{{ order.sealler.city.name}}</td>\n                            <td>{{ order.user.name }}</td>\n                            <td>{{ order.user.phoneNumber }}</td>\n                            <td>{{ order.user.userAddress }}</td>\n                            <td>{{ order.productId }}</td>\n                            <td>{{ order.product.productAName }}</td>\n                        </tr>\n\n\n                    </tbody>\n                </table>\n            </div>\n        </div>\n    </div>\n</div>";
+    __webpack_exports__["default"] = "<div [@routerTransition]>\n    <h2 class=\"text-muted\">Orders </h2>\n    <form>\n        <div class=\"form-row align-items-center\">\n\n            <div class=\"col-auto\">\n                <div class=\"form-group input-group\">\n                    <input class=\"form-control\" type=\"text\" />\n                    <div class=\"input-group-append\">\n                        <button class=\"btn btn-secondary\" type=\"button\"><i class=\"fa fa-search\"></i></button>\n                    </div>\n\n                </div>\n            </div>\n\n        </div>\n    </form>\n\n\n    <!-- /Table for orders -->\n    <div class=\"row\">\n        <div class=\"col col-xl-12\">\n            <div class=\"card mb-3\">\n                <table class=\"table table-hover table-bordered  text-center table-striped\">\n                    <thead>\n                        <tr>\n                            <th> #Id</th>\n                            <th> Created At</th>\n                            <th>Order Status</th>\n                            <th>Merchant Name</th>\n                            <th>Merchant City</th>\n                            <th>Customer Name</th>\n                            <th>Customer Phone</th>\n                            <th>Order Address</th>\n                            <th>Product #Id</th>\n                            <th>Product Name</th>\n                        </tr>\n\n                    </thead>\n                    <tbody>\n\n\n                        <tr *ngFor=\"let order of data\">\n                            <td>{{ order.id }}</td>\n                            <td>{{ order.date }}</td>\n                            <td>{{ getOrderStatusText(order.orderStatus)}}</td>\n                            <td>{{ order.sealler.projectAName }}</td>\n                            <td>{{ order.sealler.city.name}}</td>\n                            <td>{{ order.user.name }}</td>\n                            <td>{{ order.user.phoneNumber }}</td>\n                            <td>{{ order.user.userAddress }}</td>\n                            <td>{{ order.productId }}</td>\n                            <td>{{ order.product.productAName }}</td>\n                        </tr>\n\n\n                    </tbody>\n                </table>\n            </div>\n        </div>\n    </div>\n</div>";
     /***/
   },
 
@@ -166,6 +166,43 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       _createClass(OrderComponent, [{
         key: "ngOnInit",
         value: function ngOnInit() {}
+      }, {
+        key: "getOrderStatusText",
+        value: function getOrderStatusText(orderStatus) {
+          var status;
+
+          switch (orderStatus) {
+            case 0:
+              status = "Ordered";
+              break;
+
+            case 1:
+              status = "Rejected";
+              break;
+
+            case 2:
+              status = "Approved";
+              break;
+
+            case 3:
+              status = "Finshed";
+              break;
+
+            case 4:
+              status = "Shipped";
+              break;
+
+            case 5:
+              status = "Delivered";
+              break;
+
+            default:
+              status = "Unkown";
+              break;
+          }
+
+          return status;
+        }
       }]);
 
       return OrderComponent;

@@ -5967,6 +5967,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
               return item.id !== id;
             });
             alert('Category deleted successfully!');
+          }, function (error) {
+            alert("There are producers that use this category");
           });
         }
       }, {
