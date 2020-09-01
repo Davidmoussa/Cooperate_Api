@@ -22,6 +22,20 @@ namespace K_Api202001.Models
 
     }
 
+    public class ProJectTypeUpDateModelView
+    {
+
+        [Required]
+        public string Name { get; set; }
+        [Required]
+        public string AName { get; set; }
+
+        public virtual ICollection<FormUpDateModelView> ProForm { get; set; }
+
+
+    }
+
+
     public class ProJectTypeModelView
     {
         
@@ -32,6 +46,17 @@ namespace K_Api202001.Models
 
         public virtual ICollection<FormModelView> ProForm { get; set; }
 
+
+    }
+    public class FormUpDateModelView
+    {
+
+
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string AName { get; set; }
+        public bool? Required { get; set; }
+        public Type Type { get; set; }
 
     }
 

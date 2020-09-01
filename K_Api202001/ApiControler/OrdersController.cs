@@ -108,7 +108,7 @@ namespace K_Api202001.ApiControler
                             i.User.UserIdentity.PhoneNumber,
                             i.User.UserIdentity.Email,
                             i.otherPhoneNo,
-
+                           
                             //i.User.UserIdentity.PhoneNumber,
                             //i.User.UserIdentity.PhoneNumber,
                         }
@@ -223,9 +223,9 @@ namespace K_Api202001.ApiControler
                        i.description,
                        i.orderStatus,
                        i.otherPhoneNo,
+                        i.UserAddress,
 
-
-                       i.Cuantity,
+                        i.Cuantity,
                        i.TimespentEnd,
                        i.Timespent,
                        i.ReceiptDate,
@@ -441,7 +441,7 @@ namespace K_Api202001.ApiControler
                         i.orderStatus,
                         i.otherPhoneNo,
 
-
+                        i.UserAddress,
                         i.Cuantity,
                         i.TimespentEnd,
                         i.Timespent,
