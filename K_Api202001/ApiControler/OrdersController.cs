@@ -821,8 +821,9 @@ namespace K_Api202001.ApiControler
                     _contect.SaveChanges();
                     try
                     {
-                        string body = $"Hi  \n  the Receipt Code of   Order Number# :{order.Id.ToString()} \n  Receipt Code :  {ReceiptCode.Code.ToString()} \n ExperDate  : { ReceiptCode.ExperDate.ToString()}";
-                        AlertNotifiction.SendEmail(user.Email, "Receipt Code", _SmtpSettings, body);
+                      //  string body = $"Hi  \n  the Receipt Code of   Order Number# :{order.Id.ToString()} \n  Receipt Code :  {ReceiptCode.Code.ToString()} \n ExperDate  : { ReceiptCode.ExperDate.ToString()}";
+                        AlertNotifiction.SendEmail(user.Email, "Receipt Code", _SmtpSettings, "Hi    the Receipt Code of Receipt Code :  " + ReceiptCode.Code.ToString()  );
+
                     }
                     catch (Exception e) { }
                 }

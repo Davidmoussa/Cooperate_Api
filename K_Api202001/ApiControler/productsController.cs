@@ -7,6 +7,7 @@ using K_Api202001.Data;
 using K_Api202001.Models;
 using K_Api202001.Models.ModeView;
 using K_Api202001.Tools;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -29,11 +30,12 @@ namespace K_Api202001.ApiControler
         private readonly SmtpSettings _SmtpSettings;
         private readonly string imgProdectPath = "";
         private readonly string PathIMG = "";
-
+        private readonly string wwwroot = "";
+        private readonly IHostingEnvironment _environment;
 
         public float pageCount { get; set; }
         public int itemCount = 20;
-        public productsController(IConfiguration configuration, ApplicationDbContext db, UserManager<UserIdentity> _userManager, RoleManager<IdentityRole> _roleManager, SignInManager<UserIdentity> signInManager)
+        public productsController(IConfiguration configuration, ApplicationDbContext db, UserManager<UserIdentity> _userManager, RoleManager<IdentityRole> _roleManager, SignInManager<UserIdentity> signInManager , IHostingEnvironment _environment)
         {
             userManager = _userManager;
             roleManager = _roleManager;
@@ -42,6 +44,9 @@ namespace K_Api202001.ApiControler
             PathIMG = configuration["IMG:PathIMG"];
             imgProdectPath = PathIMG + "product/";
 
+
+            //wwwroot = "wwwroot/Upload/product/";//  Path.Combine(_environment.ContentRootPath, "wwwroot/Upload/product/");
+             wwwroot = configuration["IMG:imgupload"];
             //_SmtpSettings = new SmtpSettings();
             //_SmtpSettings.Password = configuration["Smtp:Password"];
             //_SmtpSettings.Port = configuration["Smtp:Port"];
@@ -471,7 +476,7 @@ namespace K_Api202001.ApiControler
                         _contect.SaveChanges();
                         foreach (var item in prodect.Img.ToList())
                         {
-                            var fileNameold = "wwwroot//Upload//product//" + item.img;
+                            var fileNameold = wwwroot + item.img;
 
                             if (System.IO.File.Exists(fileNameold)) System.IO.File.Delete(fileNameold);
                         }
@@ -576,7 +581,7 @@ namespace K_Api202001.ApiControler
                     Img.Add(model.Img3);
                     Img.Add(model.Img4);
                     Img.Add(model.Img5);
-                    var productIMg = ImgMapForm.ImgList("wwwroot//Upload//product", Img);
+                    var productIMg = ImgMapForm.ImgList(wwwroot, Img);
                     for (int i = 0; i < productIMg.Count ; i++)
                     {
 
@@ -599,7 +604,7 @@ namespace K_Api202001.ApiControler
 
                     foreach (var item in ImgPathupData)
                     {
-                        var fileNameold = "wwwroot//Upload//product//" + item.Substring(imgProdectPath.Length);
+                        var fileNameold = wwwroot + item.Substring(imgProdectPath.Length);
 
                         if (System.IO.File.Exists(fileNameold)) System.IO.File.Delete(fileNameold);
                     } 
@@ -695,11 +700,11 @@ namespace K_Api202001.ApiControler
                     _contect.SaveChanges();
                     // 
 
-                    var productIMg = ImgMapForm.ImgList("wwwroot//Upload//product", Img).Select(i => new productIMg() { img = i, productId = product.Id }).ToList();
+                    var productIMg = ImgMapForm.ImgList(wwwroot, Img).Select(i => new productIMg() { img = i, productId = product.Id }).ToList();
                     _contect.productIMg.AddRange(productIMg);
                     _contect.SaveChanges();
                     // 
-
+                    int x = 0;
                     return Ok(new
                     {
                         product.Id,
@@ -712,12 +717,12 @@ namespace K_Api202001.ApiControler
                         product.Stock,
                         product.Timespent,
                         product.SeallerId,
-                       
+                        
                         Forms = product.Form.Select(i => new { i.FormId, i.value }).ToList(),
-                        Colors= product.Colors.Select(i => new { i.Id, i.AColor, i.Color, i.Code }).ToList(),
-                        imgs= productIMg.Select(i=>new { i.Id, img= imgProdectPath + i.img}).ToList(),
+                        Colors = product.Colors.Select(i => new { i.Id, i.AColor, i.Color, i.Code }).ToList(),
+                        imgs = productIMg.Select(i => new { i.Id, img = imgProdectPath + i.img }).ToList(),
 
-                    }); 
+                    }) ; 
 
 
                 }
