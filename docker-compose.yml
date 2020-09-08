@@ -12,6 +12,8 @@ services:
     build:
       context: .
       dockerfile: K_Api202001/Dockerfile
+    volumes:
+      -  api:/app/wwwroot
     ports:
       - "80:80"
     depends_on:
@@ -28,6 +30,7 @@ services:
     restart: always
 volumes:
   dbdata:
+  api:
 
 
 

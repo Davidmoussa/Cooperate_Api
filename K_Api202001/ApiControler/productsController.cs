@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using K_Api202001.Data;
+﻿using K_Api202001.Data;
 using K_Api202001.Models;
 using K_Api202001.Models.ModeView;
 using K_Api202001.Tools;
@@ -14,10 +9,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace K_Api202001.ApiControler
 {
-    
+
     [Route("api/[controller]")]
     [ApiController]
     public class productsController : ControllerBase
@@ -42,7 +41,7 @@ namespace K_Api202001.ApiControler
             _contect = db;
             _configuration = configuration;
             PathIMG = configuration["IMG:PathIMG"];
-            imgProdectPath = PathIMG + "product/";
+            imgProdectPath = PathIMG ;
 
 
             //wwwroot = "wwwroot/Upload/product/";//  Path.Combine(_environment.ContentRootPath, "wwwroot/Upload/product/");
