@@ -74,7 +74,13 @@ namespace K_Api202001
                    .AllowAnyHeader()
                    .AllowCredentials()
 
-                  .WithOrigins("https://localhost:4200", "http://localhost:4200", "http://46.101.105.124:4200");
+                  .WithOrigins(
+                   "https://localhost:4200",
+                  "http://localhost:4200",
+                  "http://46.101.105.124:4200", 
+                  "http://api.egypt-youth.com:4200",
+                  "http://admin.egypt-youth.com:4200"
+                  );
            }));
 
 

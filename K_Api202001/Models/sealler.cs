@@ -29,6 +29,7 @@ namespace K_Api202001.Models
 
         public virtual ICollection<Order> Orders { get; set; }
         public virtual ICollection<product> products { get; set; }
+        public virtual ICollection<Ratesealler> Rates { get; set; }
 
         
     }

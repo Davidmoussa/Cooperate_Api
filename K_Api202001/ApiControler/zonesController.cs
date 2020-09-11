@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using K_Api202001.Data;
 using K_Api202001.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace K_Api202001.ApiControler
 {
@@ -14,13 +15,17 @@ namespace K_Api202001.ApiControler
     [ApiController]
     public class zonesController : ControllerBase
     {
+        private readonly UserManager<UserIdentity> userManager;
         private readonly ApplicationDbContext _context;
+
 
         public float pageCount { get; set; }
         public int itemCount = 20;
+        //var item in Model.Attorney.OrderBy(d => d.AttorneyID).Skip((Model.currentPage) * Model.pagein).Take(Model.pagein).ToList()
 
-        public zonesController(ApplicationDbContext context)
+        public zonesController(ApplicationDbContext context, UserManager<UserIdentity> _userManager)
         {
+            userManager = _userManager;
             _context = context;
         }
 
@@ -68,6 +73,8 @@ namespace K_Api202001.ApiControler
         [HttpPut("{id}")]
         public async Task<IActionResult> Putzone(int id, zone zone)
         {
+            var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+            if (!await userManager.IsInRoleAsync(user, "Adman") && user.Block) return Unauthorized();
             if (id != zone.id)
             {
                 return BadRequest();
@@ -91,25 +98,44 @@ namespace K_Api202001.ApiControler
                 }
             }
 
-            return NoContent();
+            return Ok(new
+            {
+                zone.id,
+                zone.Name,
+                zone.AName,
+                zone.Cityid,
+                City = _context.Cities.Where(i => i.id == zone.Cityid).Select(i => new { i.id, i.Name, i.AName }),
+            });
         }
 
         // POST: api/zones
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult<zone>> Postzone(zone zone)
+        public async Task<ActionResult> Postzone(zone zone)
         {
-            _context.Zones.Add(zone);
+            var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+            if (!await userManager.IsInRoleAsync(user, "Adman") && user.Block) return Unauthorized();
+            
+
+                _context.Zones.Add(zone);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("Getzone", new { id = zone.id }, zone);
+            return Ok (new {
+                zone.id,
+                zone.Name,
+                zone.AName,
+                zone.Cityid,
+                City= _context.Cities.Where(i=>i.id==zone.Cityid).Select(i=>new { i.id, i.Name ,i.AName}) ,
+            });
         }
 
         // DELETE: api/zones/5
         [HttpDelete("{id}")]
         public async Task<ActionResult<zone>> Deletezone(int id)
         {
+            var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+            if (!await userManager.IsInRoleAsync(user, "Adman") && user.Block) return Unauthorized();
             var zone = await _context.Zones.FindAsync(id);
             if (zone == null)
             {

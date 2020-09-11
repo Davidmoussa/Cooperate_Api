@@ -17,6 +17,8 @@ namespace K_Api202001.Models
         public UserIdentity UserIdentity { get; set; }
         public DateTime Hdate { get; set; }
         public virtual ICollection<Order> Orders { get; set; }
+        public virtual ICollection<Ratesealler> Ratesealler { get; set; }
+        public virtual ICollection<Rateproduct> Rateproduct { get; set; }
 
     }
 

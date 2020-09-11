@@ -571,7 +571,7 @@ namespace K_Api202001.ApiControler
             }
             else if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved && !user.Block)
             {
-                return Ok(_contect.Seallers.Include(i => i.UserIdentity).Select(i => new
+                return Ok(_contect.Seallers.Include(i => i.UserIdentity).Include(i=>i.Rates).Select(i => new
                 {
                     i.id,
                     i.projectAName,
@@ -583,13 +583,19 @@ namespace K_Api202001.ApiControler
                     ProJectType = i.ProJectType == null ? null : new { i.ProJectType.id, i.ProJectType.Name, i.ProJectType.AName },
                     City = i.City == null ? null : new { i.City.id, i.City.Name, i.City.AName },
                     zone = i.zone == null ? null : new { i.zone.id, i.zone.Name, i.zone.AName },
+                    rates = new
+                    {
+                        rate = i.Rates.Count == 0 ? 0 : i.Rates.Sum(s => s.reate) / i.Rates.Count,
+                        ratecount = i.Rates.Count,
+                        rates = i.Rates.Select(i => new { i.seallerId, i.userId, i.reate, i.comment })
+                    },
                     Role = userManager.GetRolesAsync(user).Result.FirstOrDefault()
 
                 }).SingleOrDefault(i => i.id == user.Id));
             }
             else if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed != Confirmed.block && !user.Block)
             {
-                return Ok(_contect.Seallers.Include(i => i.UserIdentity).Select(i => new
+                return Ok(_contect.Seallers.Include(i => i.UserIdentity).Include(i=>i.Rates).Select(i => new
                 {
                     i.id,
                     i.projectAName,
@@ -601,6 +607,12 @@ namespace K_Api202001.ApiControler
                     ProJectType = i.ProJectType == null ? null : new { i.ProJectType.id, i.ProJectType.Name, i.ProJectType.AName },
                     City = i.City == null ? null : new { i.City.id, i.City.Name, i.City.AName },
                     zone = i.zone == null ? null : new { i.zone.id, i.zone.Name, i.zone.AName },
+                    rates = new
+                    {
+                        rate = i.Rates.Count == 0 ? 0 : i.Rates.Sum(s => s.reate) / i.Rates.Count,
+                        ratecount = i.Rates.Count,
+                        rates = i.Rates.Select(i => new { i.seallerId, i.userId, i.reate, i.comment })
+                    },
                     Role = userManager.GetRolesAsync(user).Result.FirstOrDefault()
 
                 }).SingleOrDefault(i => i.id == user.Id));
@@ -630,7 +642,7 @@ namespace K_Api202001.ApiControler
             }
             else if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved && !user.Block)
             {
-                return Ok(_contect.Seallers.Include(i => i.UserIdentity).Select(i => new
+                return Ok(_contect.Seallers.Include(i=>i.Rates).Include(i => i.UserIdentity).Select(i => new
                 {
                     i.id,
                     i.projectAName,
@@ -642,6 +654,12 @@ namespace K_Api202001.ApiControler
                     ProJectType = i.ProJectType == null ? null : new { i.ProJectType.id, i.ProJectType.Name, i.ProJectType.AName },
                     City = i.City == null ? null : new { i.City.id, i.City.Name, i.City.AName },
                     zone = i.zone == null ? null : new { i.zone.id, i.zone.Name, i.zone.AName },
+                    rates = new
+                    {
+                        rate = i.Rates.Count == 0 ? 0 : i.Rates.Sum(s => s.reate) / i.Rates.Count,
+                        ratecount = i.Rates.Count,
+                        rates = i.Rates.Select(i => new { i.seallerId, i.userId, i.reate, i.comment })
+                    },
                     Role = userManager.GetRolesAsync(user).Result.FirstOrDefault()
 
                 }).SingleOrDefault(i => i.id == user.Id));
@@ -658,7 +676,7 @@ namespace K_Api202001.ApiControler
 
             if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed != Confirmed.block &&! user.Block)
             {
-                var Seallers = _contect.Seallers.Include(i => i.UserIdentity).OrderByDescending(i => i.Hdate).Select(i => new
+                var Seallers = _contect.Seallers.Include(i => i.UserIdentity).Include(i=>i.Rates).OrderByDescending(i => i.Hdate).Select(i => new
                 {
                     i.id,
                     i.projectAName,
@@ -670,6 +688,12 @@ namespace K_Api202001.ApiControler
                     ProJectType = i.ProJectType == null ? null : new { i.ProJectType.id, i.ProJectType.Name, i.ProJectType.AName },
                     City = i.City == null ? null : new { i.City.id, i.City.Name, i.City.AName },
                     zone = i.zone == null ? null : new { i.zone.id, i.zone.Name, i.zone.AName },
+                    rates = new
+                    {
+                        rate = i.Rates.Count == 0 ? 0 : i.Rates.Sum(s => s.reate) / i.Rates.Count,
+                        ratecount = i.Rates.Count,
+                        rates = i.Rates.Select(i => new { i.seallerId, i.userId, i.reate, i.comment })
+                    },
                     i.UserIdentity.Confirmed,
                     loginName = i.UserIdentity.UserName,
                     Role = "Sealler"
@@ -763,7 +787,7 @@ namespace K_Api202001.ApiControler
                       Where(i => i.id == Search || i.projectAName == Search || i.projectName == Search || i.UserIdentity.Email == Search
                       || i.UserIdentity.PhoneNumber == Search || i.ProJectType.AName == Search || i.ProJectType.Name == Search
                       || i.City.Name == Search || i.City.AName == Search)
-                    .Include(i => i.UserIdentity).OrderByDescending(i => i.Hdate).Select(i => new
+                    .Include(i => i.UserIdentity).Include(i=>i.Rates).OrderByDescending(i => i.Hdate).Select(i => new
                 {
                     i.id,
                     i.projectAName,
@@ -775,7 +799,13 @@ namespace K_Api202001.ApiControler
                     ProJectType = i.ProJectType == null ? null : new { i.ProJectType.id, i.ProJectType.Name, i.ProJectType.AName },
                     City = i.City == null ? null : new { i.City.id, i.City.Name, i.City.AName },
                     zone = i.zone == null ? null : new { i.zone.id, i.zone.Name, i.zone.AName },
-                    i.UserIdentity.Confirmed,
+                        rates = new
+                        {
+                            rate = i.Rates.Count == 0 ? 0 : i.Rates.Sum(s => s.reate) / i.Rates.Count,
+                            ratecount = i.Rates.Count,
+                            rates = i.Rates.Select(i => new { i.seallerId, i.userId, i.reate, i.comment })
+                        },
+                        i.UserIdentity.Confirmed,
                     loginName = i.UserIdentity.UserName,
                     Role = "Sealler"
                 }).ToList();

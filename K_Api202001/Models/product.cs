@@ -39,7 +39,7 @@ namespace K_Api202001.Models
         public virtual ICollection<productIMg> Img { get; set; }
         public virtual ICollection<productColor> Colors { get; set; }
         public virtual ICollection<Order> Order { get; set; }
-        
+        public virtual ICollection<Rateproduct> Rate { get; set; }
     }
     public class productIMg
     {

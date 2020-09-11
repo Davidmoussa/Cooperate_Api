@@ -18,8 +18,9 @@ namespace K_Api202001.Data
         {
             base.OnModelCreating(builder);
 
-            builder.Entity<productForm>()
-                        .HasKey(o => new { o.FormId, o.ProductId });
+            builder.Entity<productForm>().HasKey(o => new { o.FormId, o.ProductId });
+            builder.Entity<Ratesealler>().HasKey(o => new { o.userId, o.seallerId });
+            builder.Entity<Rateproduct>().HasKey(o => new { o.userId, o.productId });
             builder.Entity<productForm>()
              .HasOne(pt => pt.product)
              .WithMany(p => p.Form)
@@ -66,6 +67,8 @@ namespace K_Api202001.Data
         public virtual DbSet<ReceiptCode> ReceiptCode { get; set; }
         public virtual DbSet<Report> Reports { get; set; }
         public virtual DbSet<News> News { get; set; }
+        public virtual DbSet<Rateproduct> Rateproducts { get; set; }
+        public virtual DbSet<Ratesealler> Rateseallers { get; set; }
 
 
 

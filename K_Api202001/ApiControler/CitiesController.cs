@@ -102,7 +102,14 @@ namespace K_Api202001.ApiControler
                 }
             }
 
-            return NoContent();
+            return Ok(new
+            {
+                city.id,
+                city.Name,
+                city.AName,
+                // zone.Cityid,
+                Zones = _context.Zones.Where(i => i.id == city.id).Select(i => new { i.id, i.Name, i.AName }),
+            });
         }
 
         // POST: api/Cities
@@ -117,7 +124,14 @@ namespace K_Api202001.ApiControler
             _context.Cities.Add(city);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetCity", new { id = city.id }, city);
+            return Ok(new
+            {
+                city.id,
+                city.Name,
+                city.AName,
+                // zone.Cityid,
+                Zones = _context.Zones.Where(i => i.id == city.id).Select(i => new { i.id, i.Name, i.AName }),
+            });
         }
 
         // DELETE: api/Cities/5

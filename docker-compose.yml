@@ -15,7 +15,7 @@ services:
     volumes:
       -  api:/app/wwwroot
     ports:
-      - "80:80"
+      - "801:801"
     depends_on:
       - db
   db:
