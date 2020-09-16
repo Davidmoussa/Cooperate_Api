@@ -689,7 +689,18 @@ namespace K_Api202001.ApiControler
                     }
                     else if (model.orderStatus == orderStatus.delivery)
                     {
-                        if (order.orderStatus == orderStatus.Finshed || order.orderStatus == orderStatus.Approved) order.orderStatus = model.orderStatus;
+                        if (order.orderStatus == orderStatus.Finshed || order.orderStatus == orderStatus.Approved)
+                        {
+                            try
+                            {
+                                order.orderStatus = model.orderStatus;
+                                //  string body = $"Hi  \n  the Receipt Code of   Order Number# :{order.Id.ToString()} \n  Receipt Code :  {ReceiptCode.Code.ToString()} \n ExperDate  : { ReceiptCode.ExperDate.ToString()}";
+                                AlertNotifiction.SendEmail(order.User.UserIdentity.Email, "orderStatus  delivery", _SmtpSettings, $"Hi {order.User.Name} <br>   order is   delivery <br> order Number #{order.Id}  thx :)  ");
+
+                            }
+                            catch (Exception e) { }
+                        }
+                            
                         else throw new Exception($"order is {order.orderStatus} ");
                     }
                     else
@@ -728,7 +739,7 @@ namespace K_Api202001.ApiControler
                 }
                 else if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed == Confirmed.approved && !user.Block)
                 {
-                    var order = _contect.Orders.SingleOrDefault(i => i.Id == model.OrderId);
+                    var order = _contect.Orders.Include(i=>i.User.UserIdentity).SingleOrDefault(i => i.Id == model.OrderId);
                     if (order == null) return NotFound();
 
                     if (model.orderStatus == orderStatus.Approved)
@@ -748,12 +759,25 @@ namespace K_Api202001.ApiControler
                     }
                     else if (model.orderStatus == orderStatus.delivery)
                     {
+
+
                         if (order.orderStatus == orderStatus.Finshed || order.orderStatus == orderStatus.Approved) order.orderStatus = model.orderStatus;
                         else throw new Exception($"order is {order.orderStatus} ");
                     }
                     else if (model.orderStatus == orderStatus.Receipt)
                     {
-                        if (order.orderStatus == orderStatus.Finshed || order.orderStatus == orderStatus.delivery) order.orderStatus = model.orderStatus;
+                        if (order.orderStatus == orderStatus.Finshed || order.orderStatus == orderStatus.delivery)
+                        {
+                            order.orderStatus = model.orderStatus;
+                            try
+                            {
+                                //  string body = $"Hi  \n  the Receipt Code of   Order Number# :{order.Id.ToString()} \n  Receipt Code :  {ReceiptCode.Code.ToString()} \n ExperDate  : { ReceiptCode.ExperDate.ToString()}";
+                                AlertNotifiction.SendEmail(order.User.UserIdentity.Email, "orderStatus  Receipt", _SmtpSettings, "Hi    the Receipt Code of Receipt Code :  " );
+
+                            }
+                            catch (Exception e) { }
+                        }
+                            
                         else throw new Exception($"order is {order.orderStatus} ");
                     }
                     else

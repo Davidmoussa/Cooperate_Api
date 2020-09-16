@@ -105,10 +105,26 @@ namespace K_Api202001.Models
                     {
                         fileName = Guid.NewGuid().ToString() + "_" + ContentDispositionHeaderValue.Parse(item.ContentDisposition).FileName.Trim('"');
                         string fullPath = Path.Combine(newPath, fileName);
-                        using (var memoryStream = new System.IO.MemoryStream())
+
+                            if (fileName.LastIndexOf(".heic") > -1)
+                            {
+                               // fileName = Guid.NewGuid() + ".png";
+                              //  fullPath = Path.Combine(newPath, fileName);
+                                using (var memoryStream = new FileStream(fullPath,FileMode.Create))
+                                {
+                                    item.CopyTo(memoryStream);
+                                }
+                                }else
+
+                            using (var memoryStream = new System.IO.MemoryStream())
                         {
                             item.CopyTo(memoryStream);
-                            funStatac.Image_resize(memoryStream, fullPath, 300);
+                               
+                               
+                                    funStatac.Image_resize(memoryStream, fullPath, 300);
+
+                                
+
                         }
                     }
                     imgs.Add( fileName);

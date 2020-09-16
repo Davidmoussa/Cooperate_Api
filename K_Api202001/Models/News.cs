@@ -11,9 +11,9 @@ namespace K_Api202001.Models
         [Key]
         public int id { get; set; }
        
-        public int Titel { get; set; }
-        public int ATitel { get; set; }
-        public int Description { get; set; }
-        public int ADescription { get; set; }
+        public  string Titel { get; set; }
+        public string ATitel { get; set; }
+        public string Description { get; set; }
+        public string ADescription { get; set; }
     }
 }
