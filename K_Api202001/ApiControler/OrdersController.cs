@@ -38,7 +38,7 @@ namespace K_Api202001.ApiControler
             _configuration = configuration;
 
              var PathIMG = configuration["IMG:PathIMG"];
-            imgProdectPath = PathIMG + "product/";
+            imgProdectPath = configuration["IMG:PathIMG"];  // PathIMG + "product/";
 
             _SmtpSettings = new SmtpSettings();
             _SmtpSettings.Password = configuration["Smtp:Password"];
@@ -57,7 +57,7 @@ namespace K_Api202001.ApiControler
             if (user == null) return Unauthorized();
             if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved && !user.Block)
             {
-                var order = _contect.Orders.Where(i => i.SeallerId == user.Id && model. orderStatus.Count == 0 ? true : model.orderStatus.Contains(i.orderStatus))
+                var order = _contect.Orders.Where(i => i.SeallerId == user.Id && (model. orderStatus.Count == 0 ? true : model.orderStatus.Contains(i.orderStatus)))
                      .Include(i => i.User)
                     .Include(i => i.User.UserIdentity)
                     .Include(i => i.Form)
