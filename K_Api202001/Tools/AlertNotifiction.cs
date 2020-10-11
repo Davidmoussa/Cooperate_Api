@@ -4,70 +4,77 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using MailKit.Net.Smtp;
-
+using Nancy.Json;
+using Org.BouncyCastle.Asn1.Ocsp;
+using System;
+using System.Collections.Generic;
 
 using System.Threading.Tasks;
+using System.Net;
+using System.Text;
 
 namespace K_Api202001.Tools
 {
     public class AlertNotifiction
    
     {
-        //public static List<ListNotficition> tList { get; set; }
 
-        //public static void push(string ServerKey, string SenderId, Contextdb1 db, Notification notification)
-        //{
-        //    //start 
-        //    foreach (var item in db.FireBaseConnectionId.Where(i => i.UserId == notification.UserId).Select(i => new { i.connectionFierbaseId }).ToList())
-        //    {
+        public static void Notifiction_push(string ServerKey, string SenderId, List <string> connectionFierbaseId, string Titel, string Body)
+        {
+            //start 
+           foreach (var item in connectionFierbaseId)
+           {
+                try
+                {
+                    WebRequest tRequest;
+                    tRequest = WebRequest.Create("https://fcm.googleapis.com/fcm/send");
 
-        //        WebRequest tRequest;
-        //        tRequest = WebRequest.Create("https://fcm.googleapis.com/fcm/send");
-
-        //        tRequest.Method = "post";
-        //        tRequest.ContentType = "application/json";
-        //        tRequest.Headers.Add(string.Format("Authorization: key={0}", ServerKey));
-        //        tRequest.Headers.Add(string.Format("Sender: id={0}", SenderId));
+                    tRequest.Method = "post";
+                    tRequest.ContentType = "application/json";
+                    tRequest.Headers.Add(string.Format("Authorization: key={0}", ServerKey));
+                    tRequest.Headers.Add(string.Format("Sender: id={0}", SenderId));
 
 
-        //        //  FirebaseMessaging.DefaultInstance.SendAsync(message);
+                    //  FirebaseMessaging.DefaultInstance.SendAsync(message);
 
-        //        var data = new
-        //        {
-        //            notification = new
-        //            {
+                    var data = new
+                    {
+                        notification = new
+                        {
 
-        //                title = notification.Titel,
-        //                body = notification.text,
+                            title = Titel,
+                            body = Body,
 
-        //                click_action = "FLUTTER_NOTIFICATION_CLICK"
-        //            }
-        //              ,
-        //            // to = "/topics/marketing"
-        //            to = item.connectionFierbaseId
-        //        };
+                            click_action = "FLUTTER_NOTIFICATION_CLICK"
+                        }
+                          ,
+                        to = item
+                        //to = item.connectionFierbaseId
+                    };
 
-        //        var serializer = new JavaScriptSerializer();
-        //        var json = serializer.Serialize(data);
-        //        //logger.Info("json: " + json);
-        //        Byte[] byteArray = Encoding.UTF8.GetBytes(json);
-        //        tRequest.ContentLength = byteArray.Length;
+                    var serializer = new JavaScriptSerializer();
+                    var json = serializer.Serialize(data);
+                    //logger.Info("json: " + json);
+                    Byte[] byteArray = Encoding.UTF8.GetBytes(json);
+                    tRequest.ContentLength = byteArray.Length;
 
-        //        Stream dataStream = tRequest.GetRequestStream();
-        //        dataStream.Write(byteArray, 0, byteArray.Length);
-        //        dataStream.Close();
+                    Stream dataStream = tRequest.GetRequestStream();
+                    dataStream.Write(byteArray, 0, byteArray.Length);
+                    dataStream.Close();
 
-        //        WebResponse tResponse = tRequest.GetResponse();
-        //        dataStream = tResponse.GetResponseStream();
-        //        StreamReader tReader = new StreamReader(dataStream);
-        //        String sResponseFromServer = tReader.ReadToEnd();
+                    WebResponse tResponse = tRequest.GetResponse();
+                    dataStream = tResponse.GetResponseStream();
+                    StreamReader tReader = new StreamReader(dataStream);
+                    String sResponseFromServer = tReader.ReadToEnd();
 
-        //        tReader.Close();
-        //        dataStream.Close();
-        //        tResponse.Close();
-        //    }
-        //    //end
-        //}
+                    tReader.Close();
+                    dataStream.Close();
+                    tResponse.Close();
+                }
+                catch (Exception e) { }
+           }
+            //end
+        }
 
         [Obsolete]
         public static void SendEmail(string to, string sabject, SmtpSettings SmtpSettings, string Body)
@@ -110,6 +117,28 @@ namespace K_Api202001.Tools
 
                 emailClient.Disconnect(true);
             }
+
+           
+        }
+
+        public static string  ReadeFile(string FilePath)
+        {
+           
+            string FileRead = "";
+
+
+            try
+            {
+                using (StreamReader SourceReader = System.IO.File.OpenText(FilePath))
+                {
+                    FileRead = SourceReader.ReadToEnd();
+                }
+            }
+            catch (Exception e) { }
+
+
+
+            return  FileRead;
         }
     }
 }

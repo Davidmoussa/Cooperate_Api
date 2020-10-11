@@ -15,6 +15,7 @@ namespace K_Api202001.Models
         public Confirmed Confirmed { get; set; }
         public bool Block { get; set; }
         public ICollection<Report> Reports { get; set; }
+        public ICollection<NotificationToken> NotificationTokens { get; set; }
 
     }
     public enum Confirmed

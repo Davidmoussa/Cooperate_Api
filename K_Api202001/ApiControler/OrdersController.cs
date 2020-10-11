@@ -26,6 +26,8 @@ namespace K_Api202001.ApiControler
         private IConfiguration _configuration;
         private readonly SmtpSettings _SmtpSettings;
         private readonly string imgProdectPath = "";
+        private readonly string ServerKey = "";
+        private readonly string senderId = "";
 
         public float pageCount { get; set; }
         public int itemCount = 20;
@@ -39,6 +41,8 @@ namespace K_Api202001.ApiControler
 
              var PathIMG = configuration["IMG:PathIMG"];
             imgProdectPath = configuration["IMG:PathIMG"];  // PathIMG + "product/";
+            ServerKey = configuration["firebase:Serverkey"];  // PathIMG + "product/";
+            senderId = configuration["firebase:SenderID"];  // PathIMG + "product/";
 
             _SmtpSettings = new SmtpSettings();
             _SmtpSettings.Password = configuration["Smtp:Password"];
@@ -75,7 +79,7 @@ namespace K_Api202001.ApiControler
                         i.description,
                         i.orderStatus,
                         i.otherPhoneNo,
-
+                        i.Cancel,
 
                         i.Cuantity,
                         i.TimespentEnd,
@@ -162,7 +166,8 @@ namespace K_Api202001.ApiControler
                     i.Timespent,
                     i.ReceiptDate,
                     i.ProductpriceTotal,
-                    product =new {
+                        i.Cancel,
+                        product =new {
                        i.ProductAName,
                        i.ProductName,
                        i.Productprice,
@@ -230,7 +235,8 @@ namespace K_Api202001.ApiControler
                        i.Timespent,
                        i.ReceiptDate,
                        i.ProductpriceTotal,
-                       product = new
+                        i.Cancel,
+                        product = new
                        {
                            i.ProductAName,
                            i.ProductName,
@@ -298,6 +304,7 @@ namespace K_Api202001.ApiControler
                         i.Timespent,
                         i.ReceiptDate,
                         i.ProductpriceTotal,
+                        i.Cancel,
                         product = new
                         {
                             i.ProductAName,
@@ -305,6 +312,7 @@ namespace K_Api202001.ApiControler
                             i.Productprice,
                             i.product.Id,
                             i.ProductStock,
+                            i.Cancel,
                             Form = i.Form.Select(i => new { i.id, i.Key, i.value }).ToList(),
                             Color = new
                             {
@@ -385,6 +393,7 @@ namespace K_Api202001.ApiControler
                         i.Timespent,
                         i.ReceiptDate,
                         i.ProductpriceTotal,
+                        i.Cancel,
                         product = new
                         {
                             i.ProductAName,
@@ -454,6 +463,7 @@ namespace K_Api202001.ApiControler
                             i.Productprice,
                             i.product.Id,
                             i.ProductStock,
+                            i.Cancel,
                             Form = i.Form.Select(i => new { i.id, i.Key, i.value }).ToList(),
                             Color = new
                             {
@@ -518,6 +528,7 @@ namespace K_Api202001.ApiControler
                             i.Productprice,
                             i.product.Id,
                             i.ProductStock,
+                            i.Cancel,
                             Form = i.Form.Select(i => new { i.id, i.Key, i.value }).ToList(),
                             Color = new
                             {
@@ -631,6 +642,12 @@ namespace K_Api202001.ApiControler
 
                 _contect.Orders.Add(Order);
                 _contect.SaveChanges();
+                var connectionFierbaseId = _contect.NotificationTokens.Where(i =>  i.UserId == Order.SeallerId)
+                       .Select(i => i.connectionFierbaseId).ToList();
+                       AlertNotifiction.Notifiction_push(ServerKey, senderId, connectionFierbaseId, "لديك طلب جديد ", $"{Order.ProductAName} تم  طلب للمنتج ");
+
+
+
                 return Ok(
                     new
                     {
@@ -671,37 +688,64 @@ namespace K_Api202001.ApiControler
                 {
                     var order = _contect.Orders.Include(i=>i.User.UserIdentity).SingleOrDefault(i => i.Id == model.OrderId && i.SeallerId == user.Id);
                     if (order == null) return NotFound();
+                    //get UserDevice Key 
+                    var connectionFierbaseId = _contect.NotificationTokens.Where(i => i.UserId == order.UserId).Select(i => i.connectionFierbaseId).ToList();
 
 
+
+                    if (order.Cancel) return BadRequest($"order Cancel from User"); 
                     if (model.orderStatus == orderStatus.Approved)
                     {
-                        if (order.orderStatus == orderStatus.Reject || order.orderStatus == orderStatus.Ordered) order.orderStatus = model.orderStatus;
+                        if (order.orderStatus == orderStatus.Reject || order.orderStatus == orderStatus.Ordered)
+                        {
+                            order.orderStatus = model.orderStatus;
+              
+                                AlertNotifiction.Notifiction_push(ServerKey, senderId, connectionFierbaseId, " قبول الطلب ", $"{order.ProductAName} تم قبول طلب للمنتج ");
+                            
+                        }
                         else throw new Exception($"order is {order.orderStatus} ");
                     }
                     else if (model.orderStatus == orderStatus.Reject)
                     {
-                        if (order.orderStatus == orderStatus.Ordered || order.orderStatus == orderStatus.Approved) order.orderStatus = model.orderStatus;
+                        if (order.orderStatus == orderStatus.Ordered || order.orderStatus == orderStatus.Approved)
+                        {
+                            order.orderStatus = model.orderStatus;
+                            AlertNotifiction.Notifiction_push(ServerKey, senderId, connectionFierbaseId, " رفض الطلب ", $"{order.ProductAName} تم رفض طلب للمنتج ");
+                            
+                        }
                         else throw new Exception($"order is {order.orderStatus} ");
                     }
                     else if (model.orderStatus == orderStatus.Finshed)
                     {
-                        if (order.orderStatus == orderStatus.Approved) order.orderStatus = model.orderStatus;
+                        if (order.orderStatus == orderStatus.Approved)
+                        {
+                            order.orderStatus = model.orderStatus;
+                            AlertNotifiction.Notifiction_push(ServerKey, senderId, connectionFierbaseId, "  الطلب ", $"{order.ProductAName} تم قبول طلب للمنتج ");
+
+                        }
                         else throw new Exception($"order is {order.orderStatus} ");
                     }
                     else if (model.orderStatus == orderStatus.delivery)
                     {
                         if (order.orderStatus == orderStatus.Finshed || order.orderStatus == orderStatus.Approved)
                         {
-                            try
-                            {
+                           
                                 order.orderStatus = model.orderStatus;
-                                //  string body = $"Hi  \n  the Receipt Code of   Order Number# :{order.Id.ToString()} \n  Receipt Code :  {ReceiptCode.Code.ToString()} \n ExperDate  : { ReceiptCode.ExperDate.ToString()}";
-                                AlertNotifiction.SendEmail(order.User.UserIdentity.Email, "orderStatus  delivery", _SmtpSettings, $"Hi {order.User.Name} <br>   order is   delivery <br> order Number #{order.Id}  thx :)  ");
+                                AlertNotifiction.Notifiction_push(ServerKey, senderId, connectionFierbaseId, " طلب  ", $"{order.ProductAName} خلال 24 ساعة  طلبك في الوصول اليك  ");
 
-                            }
-                            catch (Exception e) { }
+
+
+                           
+                            var Body = AlertNotifiction.ReadeFile("wwwroot//Emailfile//OrderDelvery")
+                                     .Replace("#name#", order.User.Name)
+                                     .Replace("#oductName#", order.ProductAName)
+                                     ;
+                            AlertNotifiction.SendEmail(order.User.UserIdentity.Email, "orderStatus  delivery", _SmtpSettings, Body);
+                            //    #oductName# string body = $"Hi  \n  the Receipt Code of   Order Number# :{order.Id.ToString()} \n  Receipt Code :  {ReceiptCode.Code.ToString()} \n ExperDate  : { ReceiptCode.ExperDate.ToString()}";
+                            // AlertNotifiction.SendEmail(order.User.UserIdentity.Email, "orderStatus  delivery", _SmtpSettings, $"Hi {order.User.Name} <br>   order is   delivery <br> order Number #{order.Id}  thx :)  ");
+
                         }
-                            
+
                         else throw new Exception($"order is {order.orderStatus} ");
                     }
                     else
@@ -833,21 +877,36 @@ namespace K_Api202001.ApiControler
             {
                 var order = _contect.Orders.Include(i=>i.User.UserIdentity).SingleOrDefault(i => i.Id ==Id &&i.UserId==user.Id);
                 if (order == null) return NotFound();
-                var ReceiptCode = new ReceiptCode();
+                var ReceiptCode = _contect.ReceiptCode.SingleOrDefault(i => i.OrderId == order.Id);
                 if (order.orderStatus==orderStatus.delivery)
                 {
-                   
-                    ReceiptCode.UserId = user.Id;
-                    ReceiptCode.Code = new Random().Next(1234, 9999);
-                    ReceiptCode.OrderId = Id;
-                    ReceiptCode.ExperDate = DateTime.Now.AddMinutes(10);
+                    
+                    if (ReceiptCode == null)
+                    {
+                        ReceiptCode = new ReceiptCode();
+                        ReceiptCode.UserId = user.Id;
+                        ReceiptCode.Code = new Random().Next(1234, 9999);
+                        ReceiptCode.OrderId = Id;
+                        ReceiptCode.ExperDate = DateTime.Now.AddMinutes(10);
+                        _contect.ReceiptCode.Add(ReceiptCode);
+                    }
+                    else
+                    {
+                        ReceiptCode.UserId = user.Id;
+                        ReceiptCode.Code = new Random().Next(1234, 9999);
+                        ReceiptCode.OrderId = Id;
+                        ReceiptCode.ExperDate = DateTime.Now.AddMinutes(10);
+                    }
 
-                    _contect.ReceiptCode.Add(ReceiptCode);
+                      
+                   //var conne= _contect.NotificationTokens.Where(i=)
+                    
                     _contect.SaveChanges();
                     try
                     {
                       //  string body = $"Hi  \n  the Receipt Code of   Order Number# :{order.Id.ToString()} \n  Receipt Code :  {ReceiptCode.Code.ToString()} \n ExperDate  : { ReceiptCode.ExperDate.ToString()}";
-                        AlertNotifiction.SendEmail(user.Email, "Receipt Code", _SmtpSettings, "Hi    the Receipt Code of Receipt Code :  " + ReceiptCode.Code.ToString()  );
+                      //  AlertNotifiction.SendEmail(user.Email, "Receipt Code", _SmtpSettings, "Hi    the Receipt Code of Receipt Code :  " + ReceiptCode.Code.ToString()  );
+                        //AlertNotifiction.SendEmail(order.User.UserIdentity.Email, "orderStatus  Receipt", _SmtpSettings, "Hi    the Receipt Code of Receipt Code :  ");
 
                     }
                     catch (Exception e) { }
@@ -883,16 +942,22 @@ namespace K_Api202001.ApiControler
                 if (ReceiptCode == null) return NotFound();
                 else
                 {
+
                     ReceiptCode.SeallerId = user.Id;
                     ReceiptCode.ReceiptDate =DateTime.Now;
                     order.orderStatus = orderStatus.Receipt;
                     order.ReceiptDate = ReceiptCode.ReceiptDate;
                     _contect.SaveChanges();
-                }
-                   
-                
+                    var connectionFierbaseId = _contect.NotificationTokens.Where(i => i.UserId == order.UserId || i.UserId == order.SeallerId)
+                        .Select(i=>i.connectionFierbaseId).ToList();
+                         AlertNotifiction.Notifiction_push(ServerKey, senderId, connectionFierbaseId, "  الطلب استلام الطلب", $"{order.ProductAName} تم استلام الطلب طلب للمنتج ");
 
-            return Ok(
+
+                }
+
+
+
+                return Ok(
                  new
                  {
                      order.Id,
@@ -921,6 +986,77 @@ namespace K_Api202001.ApiControler
         }
          else return Unauthorized();
 
+        }
+
+
+        // Cancel
+
+        [HttpPost("Cancel/{OrderId}")]
+        public async Task<IActionResult> Receipt(int OrderId)
+        {
+            var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+            if (user == null) return Unauthorized();
+            if (await userManager.IsInRoleAsync(user, "User") && user?.Confirmed == Confirmed.approved && !user.Block)
+            {
+                var order = _contect.Orders.SingleOrDefault(i => i.Id == OrderId && user.Id == i.UserId);
+                if (order == null) return NotFound();
+                else if (order.Cancel) return BadRequest($"this order Cancel ");
+
+                else
+                {
+                    if (order.orderStatus == orderStatus.Receipt || order.orderStatus == orderStatus.delivery)
+                    {
+                        return BadRequest($"this Order Is {order.orderStatus} ");
+                    }
+                    else
+                    {
+                        order.Cancel = true;
+                        var Product = _contect.products.SingleOrDefault(i => i.Id == order.ProductId);
+                        if (Product != null)
+                        {
+                            if (Product.Stock)
+                            {
+                                Product.StockCount += order.Cuantity;
+                            }
+                        }
+
+
+                        _contect.SaveChanges();
+
+                        var connectionFierbaseId = _contect.NotificationTokens.Where(i => i.UserId == order.UserId || i.UserId == order.SeallerId)
+                       .Select(i => i.connectionFierbaseId).ToList();
+                        AlertNotifiction.Notifiction_push(ServerKey, senderId, connectionFierbaseId, "    الغاء الطلب", $"{order.ProductAName} تم الغاء الطلب طلب للمنتج ");
+
+
+                        return Ok(
+                            new
+                            {
+                                order.Id,
+                                order.ProductName,
+                                order.ProductAName,
+                                order.Productprice,
+
+                                order.description,
+                                order.Cancel,
+
+                                // ProductForm = order.Form?.Select(i => new { i.id, i.AKey, i.Key, i.value }).ToList(),
+                                order.CodeColor,
+                                order.ANameColor,
+                                order.NameColor,
+                                order.orderStatus,
+                                order.Cuantity,
+                                order.ProductpriceTotal,
+                                order.Date,
+                                order.Timespent,
+                                order.TimespentEnd,
+                                order.UserAddress,
+                                order.otherPhoneNo,
+                                order.ReceiptDate
+                            });
+                    }
+                }
+            }
+            else return Unauthorized();
         }
 
         private bool OrderExists(int id)

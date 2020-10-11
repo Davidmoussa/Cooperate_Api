@@ -15,5 +15,6 @@ namespace K_Api202001.Models
         public string ATitel { get; set; }
         public string Description { get; set; }
         public string ADescription { get; set; }
+        public string URL { get; set; }
     }
 }

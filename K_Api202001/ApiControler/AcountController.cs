@@ -115,7 +115,9 @@ namespace K_Api202001.ApiControler
                         _contect.UserCodeConfierm.Add(UserCodeConfierm);
                         _contect.SaveChanges();
 
-                        AlertNotifiction.SendEmail(user.UserIdentity.Email, " Conform Account", _SmtpSettings, Code.ToString());
+                         var Body =   AlertNotifiction.ReadeFile("wwwroot//Emailfile//conformEmile")
+                            .Replace("#name#", user.AName).Replace("#code#", Code.ToString());
+                        AlertNotifiction.SendEmail(user.UserIdentity.Email, " Conform Account", _SmtpSettings, Body);
 
                         return Ok(new
                         {
@@ -176,8 +178,10 @@ namespace K_Api202001.ApiControler
 
 
                 _contect.SaveChanges();
-
-                AlertNotifiction.SendEmail(user.Email, " Conform Account", _SmtpSettings, Code.ToString());
+                var Use = _contect.Users.SingleOrDefault(i => i.id == user.Id);
+                var Body = AlertNotifiction.ReadeFile("wwwroot//Emailfile//conformEmile")
+                           .Replace("#name#", Use.AName).Replace("#code#", Code.ToString());
+                AlertNotifiction.SendEmail(user.Email, " Conform Account", _SmtpSettings, Body);
 
                 return Ok();
             }
@@ -375,7 +379,15 @@ namespace K_Api202001.ApiControler
                 else
                     Sealler.Confirmed = Confirmed.Reject;
                 await userManager.UpdateAsync(Sealler);
-                AlertNotifiction.SendEmail(Sealler.Email, " Conform Account", _SmtpSettings, $"Dear  {Sealler.UserName }  <br> Acount is  " + Sealler.Confirmed.ToString());
+
+
+                var SellerName = _contect.Seallers.SingleOrDefault(i => i.id == Sealler.Id);
+                var Body = AlertNotifiction.ReadeFile("wwwroot//Emailfile//conformseller")
+                         .Replace("#name#", SellerName.projectAName);
+                AlertNotifiction.SendEmail(user.Email, " Conform Account", _SmtpSettings, Body);
+
+                
+//AlertNotifiction.SendEmail(Sealler.Email, " Conform Account", _SmtpSettings, $"Dear  {Sealler.UserName }  <br> Acount is  " + Sealler.Confirmed.ToString());
 
                 return Ok(new { Sealler.Id });
             }

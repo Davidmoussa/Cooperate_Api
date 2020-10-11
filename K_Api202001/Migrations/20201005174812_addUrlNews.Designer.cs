@@ -3,14 +3,16 @@ using System;
 using K_Api202001.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace K_Api202001.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201005174812_addUrlNews")]
+    partial class addUrlNews
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -59,24 +61,6 @@ namespace K_Api202001.Migrations
                     b.HasKey("id");
 
                     b.ToTable("News");
-                });
-
-            modelBuilder.Entity("K_Api202001.Models.NotificationToken", b =>
-                {
-                    b.Property<string>("connectionFierbaseId")
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
-
-                    b.Property<string>("Type")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
-
-                    b.HasKey("connectionFierbaseId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("NotificationTokens");
                 });
 
             modelBuilder.Entity("K_Api202001.Models.Order", b =>
@@ -741,13 +725,6 @@ namespace K_Api202001.Migrations
                         .HasColumnType("int");
 
                     b.HasDiscriminator().HasValue("UserIdentity");
-                });
-
-            modelBuilder.Entity("K_Api202001.Models.NotificationToken", b =>
-                {
-                    b.HasOne("K_Api202001.Models.UserIdentity", "User")
-                        .WithMany("NotificationTokens")
-                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("K_Api202001.Models.Order", b =>
