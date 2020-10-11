@@ -115,7 +115,7 @@ namespace K_Api202001.ApiControler
                         _contect.UserCodeConfierm.Add(UserCodeConfierm);
                         _contect.SaveChanges();
 
-                         var Body =   AlertNotifiction.ReadeFile("wwwroot//Emailfile//conformEmile")
+                         var Body =   AlertNotifiction.ReadeFile("wwwroot//Emailfile//conformEmile.html")
                             .Replace("#name#", user.AName).Replace("#code#", Code.ToString());
                         AlertNotifiction.SendEmail(user.UserIdentity.Email, " Conform Account", _SmtpSettings, Body);
 
@@ -179,7 +179,7 @@ namespace K_Api202001.ApiControler
 
                 _contect.SaveChanges();
                 var Use = _contect.Users.SingleOrDefault(i => i.id == user.Id);
-                var Body = AlertNotifiction.ReadeFile("wwwroot//Emailfile//conformEmile")
+                var Body = AlertNotifiction.ReadeFile("wwwroot//Emailfile//conformEmile.html")
                            .Replace("#name#", Use.AName).Replace("#code#", Code.ToString());
                 AlertNotifiction.SendEmail(user.Email, " Conform Account", _SmtpSettings, Body);
 
@@ -382,7 +382,7 @@ namespace K_Api202001.ApiControler
 
 
                 var SellerName = _contect.Seallers.SingleOrDefault(i => i.id == Sealler.Id);
-                var Body = AlertNotifiction.ReadeFile("wwwroot//Emailfile//conformseller")
+                var Body = AlertNotifiction.ReadeFile("wwwroot//Emailfile//conformseller.html")
                          .Replace("#name#", SellerName.projectAName);
                 AlertNotifiction.SendEmail(user.Email, " Conform Account", _SmtpSettings, Body);
 

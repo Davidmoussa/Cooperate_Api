@@ -736,7 +736,7 @@ namespace K_Api202001.ApiControler
 
 
                            
-                            var Body = AlertNotifiction.ReadeFile("wwwroot//Emailfile//OrderDelvery")
+                            var Body = AlertNotifiction.ReadeFile("wwwroot//Emailfile//OrderDelvery.html")
                                      .Replace("#name#", order.User.Name)
                                      .Replace("#oductName#", order.ProductAName)
                                      ;
