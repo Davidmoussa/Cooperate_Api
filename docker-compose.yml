@@ -34,10 +34,10 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/London
-      - URL=egypt-youth.com,api
-      - SUBDOMAINS=www,
+      - URL=egypt-youth.com
+      - SUBDOMAINS=www,api,admin
       - VALIDATION=http
-      - STAGING= true  #false #optional
+      - STAGING=true  #false #optional
     volumes:
       - ./nginx/config:/config
       - ./nginx/nginx.conf:/config/nginx/site-confs/default

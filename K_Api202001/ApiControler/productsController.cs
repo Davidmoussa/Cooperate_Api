@@ -63,7 +63,7 @@ namespace K_Api202001.ApiControler
 
 
         
-        [HttpGet("Futute")]
+        [HttpGet("Future")]
         public async Task<IActionResult> GETFutute()
         {
           //  var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
