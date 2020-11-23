@@ -1,0 +1,36 @@
+{
+    "Dashboard": "أدمن داشبورد",
+    "Home":"الرئيسية",
+    "Products":"المنتجات",
+    "Category":"الفئات",
+    "Orders":"طلبات",
+    "Users":"المستخدمين",
+    "Reports":"التقارير",
+    "Registration Requests":"طلبات التسجيل ",
+    "id":"رقم",
+    "Name":"اسم",
+    "Phone Number":"رقم التلفون",
+    "Available in stock":"المتاح في المخازن",
+    "Product Price":"سعر المنتج",
+    "Merchant Name":"أسم التاجر",
+    "Merchant Phone":"رقم التاجر ",
+    "Product Category":"فئة المنتج",
+    "Created At":"أنشأت في  ",
+    "Order Status":"حالة الطلب ",
+    "Merchant City":"مدينة التاجر ",
+    "Customer Name":"أسم العميل",
+    "Customer Phone":"رقم العميل  ",
+    "Order Address":"عنوان العميل ",
+    "Product #Id":"رقم المنتج",
+    "Product Name":"اسم المنتج ",
+    "Report Date" :"تاريخ التقرير",
+    "Report Number":"رقم التقرير",
+    "Report Message":"نص التقرير",
+    "ar-Name":"الاسم -عربي",
+    "Cities":"المدن"
+                          
+
+    
+
+    
+}

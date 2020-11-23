@@ -588,12 +588,12 @@ namespace K_Api202001.ApiControler
                     .Include(i => i.Img)
                     .Include(i => i.sealler.UserIdentity)
 
-                    .SingleOrDefault(i => i.Id == model.ProductId && i.Delete == false);
+                    .SingleOrDefault(i => i.Id == model.ProductId && i.Delete == false );
 
                 var prodectColore = Prodect.Colors.SingleOrDefault(i => i.Id == model.ColorId);
-
+                
                 if (Prodect == null) return NotFound();
-
+                if (Prodect.sealler.UserIdentity.Block==true ) return NotFound("this seller is Block");
                 if (Prodect.Stock && Prodect.StockCount-model.Cuantity < 0) return NotFound("Prodect out  Stock");
                 var Order = new Order();
 
@@ -1025,7 +1025,7 @@ namespace K_Api202001.ApiControler
 
                         var connectionFierbaseId = _contect.NotificationTokens.Where(i => i.UserId == order.UserId || i.UserId == order.SeallerId)
                        .Select(i => i.connectionFierbaseId).ToList();
-                        AlertNotifiction.Notifiction_push(ServerKey, senderId, connectionFierbaseId, "    الغاء الطلب", $"{order.ProductAName} تم الغاء الطلب طلب للمنتج ");
+                        AlertNotifiction.Notifiction_push(ServerKey, senderId, connectionFierbaseId, "    الغاء الطلب", $"{order.ProductAName} تم الغاء الطلب  للمنتج ");
 
 
                         return Ok(
