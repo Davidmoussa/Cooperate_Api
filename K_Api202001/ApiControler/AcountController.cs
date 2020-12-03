@@ -940,7 +940,7 @@ namespace K_Api202001.ApiControler
                 {
                    
                       
-                            Acount.Block = model.block;
+                        Acount.Block = model.block;
                         
                         await userManager.UpdateAsync(Acount);
                         return Ok(new

@@ -142,7 +142,7 @@ namespace K_Api202001.ApiControler
             if (user == null) return Unauthorized();
             if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved && !user.Block)
             {
-                var order = _contect.Orders.Where(i => i.SeallerId == user.Id && orderStatus == null ? true : i.orderStatus == orderStatus)
+                var order = _contect.Orders.Where(i => i.SeallerId == user.Id && (orderStatus == null ? true : i.orderStatus == orderStatus))
                      .Include(i => i.User)
                     .Include(i => i.User.UserIdentity)
                     .Include(i => i.Form)
@@ -198,6 +198,7 @@ namespace K_Api202001.ApiControler
                     
                     }).OrderByDescending(i=>i.Date).ToList();
 
+
                 // Pagenation
 
                 pageCount = (int)Math.Ceiling(decimal.Divide(order.Count, itemCount));
@@ -211,7 +212,7 @@ namespace K_Api202001.ApiControler
             else if (await userManager.IsInRoleAsync(user, "User") && user?.Confirmed == Confirmed.approved && !user.Block)
             {
 
-                var order = _contect.Orders.Where(i => i.UserId == user.Id && orderStatus == null ? true : i.orderStatus == orderStatus)
+                var order = _contect.Orders.Where(i => i.UserId == user.Id && (orderStatus == null ? true : i.orderStatus == orderStatus))
                     .Include(i=>i.User)
                     .Include(i=>i.User.UserIdentity)
                     .Include(i=>i.Form)
@@ -280,7 +281,7 @@ namespace K_Api202001.ApiControler
             else if (await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed == Confirmed.approved && !user.Block)
             {
 
-                var order = _contect.Orders.Where(i =>  orderStatus == null ? true : i.orderStatus == orderStatus)
+                var order = _contect.Orders.Where(i =>  (orderStatus == null ? true : i.orderStatus == orderStatus))
                     .Include(i => i.User)
                     .Include(i => i.User.UserIdentity)
                     .Include(i => i.Form)
@@ -588,7 +589,7 @@ namespace K_Api202001.ApiControler
                     .Include(i => i.Img)
                     .Include(i => i.sealler.UserIdentity)
 
-                    .SingleOrDefault(i => i.Id == model.ProductId && i.Delete == false );
+                    .SingleOrDefault(i => i.Id == model.ProductId && i.Delete == false && i.sealler.UserIdentity.Block==false);
 
                 var prodectColore = Prodect.Colors.SingleOrDefault(i => i.Id == model.ColorId);
                 

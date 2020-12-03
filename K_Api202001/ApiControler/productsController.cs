@@ -71,7 +71,9 @@ namespace K_Api202001.ApiControler
 
             //if (await userManager.IsInRoleAsync(user, "User") && user?.Confirmed != Confirmed.block && !user.Block)
             //{
-                var products = _contect.products.OrderByDescending(i=>i.Rate.Count==0?0: i.Rate.Sum(i=>i.reate)/i.Rate.Count)
+                var products = _contect.products
+                       .Where(i=>i.sealler.UserIdentity.Block==false && i.Delete==false)
+                       .OrderByDescending(i=>i.Rate.Count==0?0: i.Rate.Sum(i=>i.reate)/i.Rate.Count)
                        .OrderByDescending(i=>i.Rate.Count)
                        .Take(10)
                         .Include(i => i.Colors)
@@ -141,7 +143,7 @@ namespace K_Api202001.ApiControler
        
             if ( await userManager.IsInRoleAsync(user, "Adman") && user?.Confirmed != Confirmed.block && !user.Block)
             {
-                var prodect = _contect.products.Where(i => i.Delete == false)
+                var prodect = _contect.products.Where(i => i.sealler.UserIdentity.Block == false && i.Delete == false)
                                       .Include(i => i.Colors)
                                       .Include(i => i.sealler)
                                       .Include(i => i.sealler.ProJectType)
@@ -261,6 +263,7 @@ namespace K_Api202001.ApiControler
             if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved && !user.Block)
             {
                 var prodect = _contect.products.Where(i => i.sealler.ProJectTypeId == categoryId && i.SeallerId== user.Id&& i.Delete == false)
+                        .Where(i => i.sealler.UserIdentity.Block == false )
                        .Include(i => i.Colors)
                        .Include(i => i.sealler)
                        .Include(i => i.sealler.UserIdentity)
@@ -306,6 +309,7 @@ namespace K_Api202001.ApiControler
           else if ((await userManager.IsInRoleAsync(user, "User") || await userManager.IsInRoleAsync(user, "Adman")) && user?.Confirmed != Confirmed.block && !user.Block)
             {
                 var prodect = _contect.products.Where(i => i.sealler.ProJectTypeId == categoryId && i.sealler.UserIdentity.Confirmed == Confirmed.approved && i.Delete == false)
+                                       .Where(i => i.sealler.UserIdentity.Block == false )
                                       .Include(i => i.Colors)
                                       .Include(i => i.sealler)
                                        .Include(i => i.sealler.ProJectType)
@@ -377,10 +381,11 @@ namespace K_Api202001.ApiControler
             if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved && !user.Block)
             {
                 var prodect = _contect.products.Where(i => (
-                i.Name==search||
-                i.AName==search
+                i.Name.Contains(search)||
+                i.AName.Contains(search)
              
                 ) && i.SeallerId == user.Id && i.Delete == false)
+
                        .Include(i => i.Colors)
                        .Include(i => i.sealler)
                        .Include(i => i.sealler.UserIdentity)
@@ -426,13 +431,13 @@ namespace K_Api202001.ApiControler
             else if ((await userManager.IsInRoleAsync(user, "User") || await userManager.IsInRoleAsync(user, "Adman")) && user?.Confirmed != Confirmed.block && !user.Block)
             {
                 var prodect = _contect.products.Where(i => (
-                i.Name == search ||
-                i.AName == search ||
-                i.SeallerId == search||
-                i.sealler.projectAName == search ||
-                i.sealler.projectName == search ||
-                i.sealler.UserIdentity.PhoneNumber == search
-                ) && i.sealler.UserIdentity.Confirmed == Confirmed.approved && i.Delete == false)
+                i.Name.Contains(search) ||
+                i.AName.Contains(search) ||
+                i.SeallerId.Contains(search) ||
+                i.sealler.projectAName.Contains(search) ||
+                i.sealler.projectName.Contains(search) ||
+                i.sealler.UserIdentity.PhoneNumber.Contains(search)
+                ) && i.sealler.UserIdentity.Confirmed == Confirmed.approved && i.Delete == false && i.sealler.UserIdentity.Block == false)
                                       .Include(i => i.Colors)
                                       .Include(i => i.sealler)
                                        .Include(i => i.sealler.ProJectType)
@@ -499,7 +504,7 @@ namespace K_Api202001.ApiControler
             if (await userManager.IsInRoleAsync(user, "Sealler") && user?.Confirmed == Confirmed.approved && !user.Block)
             {
 
-                var prodect = _contect.products.Where(i => i.Id == Id && i.SeallerId == user.Id && i.Delete == false)
+                var prodect = _contect.products.Where(i => i.Id == Id && i.SeallerId == user.Id && i.Delete == false && !i.sealler.UserIdentity.Block)
                        .Include(i => i.Colors)
                        .Include(i => i.sealler)
                        .Include(i => i.sealler.UserIdentity)
@@ -537,7 +542,7 @@ namespace K_Api202001.ApiControler
             }
              else if ((await userManager.IsInRoleAsync(user, "User") || await userManager.IsInRoleAsync(user, "Adman")) && user?.Confirmed != Confirmed.block && !user.Block)
             {
-                var prodect = _contect.products.Where(i => i.Id == Id && i.sealler.UserIdentity.Confirmed == Confirmed.approved && i.Delete == false)
+                var prodect = _contect.products.Where(i => i.Id == Id && i.sealler.UserIdentity.Confirmed == Confirmed.approved && i.Delete == false && !i.sealler.UserIdentity.Block)
                       .Include(i => i.Colors)
                       .Include(i => i.sealler)
                       .Include(i => i.sealler.ProJectType)

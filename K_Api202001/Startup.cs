@@ -78,8 +78,8 @@ namespace K_Api202001
                    "https://localhost:4200",
                   "http://localhost:4200",
                   "http://46.101.105.124:4200", 
-                  "http://api.egypt-youth.com:4200",
-                  "http://admin.egypt-youth.com:4200"
+                  "https://api.egypt-youth.com",
+                  "https://egypt-youth.com"
                   );
            }));
 
