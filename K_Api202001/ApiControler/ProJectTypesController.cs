@@ -31,6 +31,7 @@ namespace K_Api202001.ApiControler
 
         public ProJectTypesController(IConfiguration configuration, ApplicationDbContext db, UserManager<UserIdentity> _userManager, RoleManager<IdentityRole> _roleManager, SignInManager<UserIdentity> signInManager)
         {
+
             userManager = _userManager;
             roleManager = _roleManager;
             _context = db;
@@ -51,12 +52,27 @@ namespace K_Api202001.ApiControler
         [HttpGet]
         public async Task<IActionResult> GetProJectType(int currentPage)
         {
-            var products = _context.products.Where(i=> !i.Delete && !i.sealler.UserIdentity.Block).Include(i=>i.sealler.UserIdentity).Select(i=>i.sealler.ProJectTypeId).ToList();
+            var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+           
             var ProJectType=   _context.ProJectType
-                .Where(i=> products.Contains(i.id))
+                
                 .Select(i=>new { i.id,i.Name,i.AName}).ToList();
             // Pagenation
-           
+           if (user != null)                  
+            {
+                if (await userManager.IsInRoleAsync(user, "User") && !user.Block)
+                {
+                    var products = _context.products.Where(i => !i.Delete && !i.sealler.UserIdentity.Block).Include(i => i.sealler.UserIdentity).Select(i => i.sealler.ProJectTypeId).ToList();
+                    ProJectType = _context.ProJectType
+                     .Where(i => products.Contains(i.id))
+                     .Select(i => new { i.id, i.Name, i.AName }).ToList();
+                   
+                }
+
+
+            }
+
+
             pageCount = (int)Math.Ceiling(decimal.Divide(ProJectType.Count, itemCount));
         //    if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
             // End 
@@ -88,6 +104,8 @@ namespace K_Api202001.ApiControler
 
             try
             {
+                var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+                if (!await userManager.IsInRoleAsync(user, "Adman") && user.Block) return Unauthorized("Only  Adman");
                 var ProJectType = new ProJectType();
                 var forms = new List<ProForm>();
                 var count = _context.ProJectType.Where(i => (i.AName == Model.AName || i.Name == Model.Name) && i.id != id).ToList().Count;
@@ -150,6 +168,10 @@ namespace K_Api202001.ApiControler
         public async Task<IActionResult> PostProJectType(ProJectTypeModelView Model)
         {
 
+            var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+            if (!await userManager.IsInRoleAsync(user, "Adman") && user.Block) return Unauthorized("Only  Adman");
+
+
             var count = _context.ProJectType.Where(i => i.AName == Model.AName || i.Name == Model.Name).ToList().Count;
             if(count==0)
             {
@@ -200,6 +222,11 @@ namespace K_Api202001.ApiControler
         [HttpDelete("{id}")]
         public async Task<ActionResult<ProJectType>> DeleteProJectType(int id)
         {
+
+            var user = await userManager.FindByIdAsync(User.FindFirst("Id")?.Value);
+            if (!await userManager.IsInRoleAsync(user, "Adman") && user.Block) return Unauthorized("Only  Adman");
+
+
             var proJectType = await _context.ProJectType.FindAsync(id);
             if (proJectType == null)
             {
