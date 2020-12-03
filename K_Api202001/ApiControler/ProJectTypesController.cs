@@ -51,9 +51,12 @@ namespace K_Api202001.ApiControler
         [HttpGet]
         public async Task<IActionResult> GetProJectType(int currentPage)
         {
-            var ProJectType=   _context.ProJectType.Select(i=>new { i.id,i.Name,i.AName}).ToList();
+            var products = _context.products.Where(i=> !i.Delete && !i.sealler.UserIdentity.Block).Include(i=>i.sealler.UserIdentity).Select(i=>i.sealler.ProJectTypeId).ToList();
+            var ProJectType=   _context.ProJectType
+                .Where(i=> products.Contains(i.id))
+                .Select(i=>new { i.id,i.Name,i.AName}).ToList();
             // Pagenation
-
+           
             pageCount = (int)Math.Ceiling(decimal.Divide(ProJectType.Count, itemCount));
         //    if (currentPage > pageCount - 1) currentPage = (int)pageCount - 1;
             // End 

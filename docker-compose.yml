@@ -37,7 +37,7 @@ services:
       - URL=egypt-youth.com
       - SUBDOMAINS=www,api,admin
       - VALIDATION=http
-      - STAGING=true  #false #optional
+      - STAGING=false #optional
     volumes:
       - ./nginx/config:/config
       - ./nginx/nginx.conf:/config/nginx/site-confs/default
