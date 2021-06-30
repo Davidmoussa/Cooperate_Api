@@ -623,7 +623,7 @@ namespace K_Api202001.ApiControler
                 if (Prodect.Stock)
                 {
                     Prodect.StockCount -= model.Cuantity;
-                    Order.orderStatus = orderStatus.Finshed;
+                    Order.orderStatus = orderStatus.Approved;
                 }
                 else
                 {
