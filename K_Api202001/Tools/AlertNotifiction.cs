@@ -79,44 +79,49 @@ namespace K_Api202001.Tools
         [Obsolete]
         public static void SendEmail(string to, string sabject, SmtpSettings SmtpSettings, string Body)
         {
-            using (var emailClient = new SmtpClient())
+            try
             {
+                using (var emailClient = new SmtpClient())
+                {
 
 
-                var message = new MimeMessage();
-                message.From.Add(new MailboxAddress(SmtpSettings.FromAddress));
-                message.To.Add(new MailboxAddress(to));
-
-                
-
-
-                message.Subject = sabject;
-                var builder = new BodyBuilder();// { TextBody = message };
-                //using (StreamReader SourceReader = System.IO.File.OpenText(FilePath))
-                //{
-                //    builder.HtmlBody = SourceReader.ReadToEnd();
-                //}
-                builder.HtmlBody = Body;
-                message.Body = builder.ToMessageBody();
+                    var message = new MimeMessage();
+                    message.From.Add(new MailboxAddress(SmtpSettings.FromAddress));
+                    message.To.Add(new MailboxAddress(to));
 
 
 
-                //We will say we are sending HTML. But there are options for plaintext etc. 
+
+                    message.Subject = sabject;
+                    var builder = new BodyBuilder();// { TextBody = message };
+                                                    //using (StreamReader SourceReader = System.IO.File.OpenText(FilePath))
+                                                    //{
+                                                    //    builder.HtmlBody = SourceReader.ReadToEnd();
+                                                    //}
+                    builder.HtmlBody = Body;
+                    message.Body = builder.ToMessageBody();
 
 
 
-                //The last parameter here is to use SSL (Which you should!)
-                emailClient.Connect(SmtpSettings.Server, int.Parse(SmtpSettings.Port), false);
-
-                //Remove any OAuth functionality as we won't be using it. 
+                    //We will say we are sending HTML. But there are options for plaintext etc. 
 
 
-                emailClient.Authenticate(SmtpSettings.FromAddress, SmtpSettings.Password);
 
-                emailClient.Send(message);
+                    //The last parameter here is to use SSL (Which you should!)
+                    emailClient.Connect(SmtpSettings.Server, int.Parse(SmtpSettings.Port), false);
 
-                emailClient.Disconnect(true);
+                    //Remove any OAuth functionality as we won't be using it. 
+
+
+                    emailClient.Authenticate(SmtpSettings.FromAddress, SmtpSettings.Password);
+
+                    emailClient.Send(message);
+
+                    emailClient.Disconnect(true);
+                }
             }
+            catch { }
+           
 
            
         }
