@@ -21,7 +21,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     /* harmony default export */
 
 
-    __webpack_exports__["default"] = "<div [@routerTransition]>\n    <h2 class=\"text-muted\">Users </h2>\n    \n\n    <!-- /Table for users -->\n    <div class=\"row\">\n        <div class=\"col col-xl-12\">\n            \n                <table class=\"table table-hover  table-bordered table-striped text-center \">\n                    <thead>\n                        <tr>\n                            <th> {{'id' | translate }}</th>\n                            <th>{{'Name' | translate }}</th>\n                            <th>{{'Phone Number' | translate }}</th>\n                            <th>Block/Unblock</th>\n\n                        </tr>\n                    </thead>\n                    <tbody>\n                        <tr *ngFor=\"let user of data\">\n                            <ng-container *ngIf=\"user.confirmed!=3\">\n                                <th scope=\"row\">{{ user.id }}</th>\n                                <td>{{ user.name  }}</td>\n                                <td>{{ user.phoneNumber }}</td>\n                                <td>\n                                    <div class=\"text-center\">\n\n                                        <button style=\"background-color: rgb(175, 174, 174);height: 100%;\" *ngIf=\"!user.block\" type=\"button\" class=\"btn btn-xs \"(click)=\"block(user.id)\">\n                                            <i class=\"fa fa-unlock\" aria-hidden=\"true\"></i>\n\n                                        </button>\n                                    \n                                       \n                                        <button style=\"background-color: rgb(124, 122, 122);height: 100%;\" *ngIf=\"user.block\" type=\"button\" class=\"btn btn-xs \"(click)=\"unBlock(user.id)\">\n                                            <i class=\"fa fa-lock\" aria-hidden=\"true\"></i>\n\n                                        </button>\n\n\n                                    </div>\n                                </td>\n                            </ng-container>\n                        </tr>\n\n\n\n                    </tbody>\n\n                </table>\n            \n        </div>\n    </div>\n</div>\n\n";
+    __webpack_exports__["default"] = "<div [@routerTransition]>\n    <h2 class=\"text-muted\">Users </h2>\n\n\n    <!-- /Table for users -->\n    <div class=\"row\">\n        <div class=\"col col-xl-12\">\n\n            <table class=\"table table-hover  table-bordered table-striped text-center \">\n                <thead>\n                    <tr>\n                        <th> {{'id' | translate }}</th>\n                        <th>{{'Name' | translate }}</th>\n                        <th>{{'Phone Number' | translate }}</th>\n                        <th>Block/Unblock</th>\n\n                    </tr>\n                </thead>\n                <tbody>\n                    <tr *ngFor=\"let user of data\">\n                        <ng-container *ngIf=\"user.confirmed!=3\">\n                            <th scope=\"row\">{{ user.id }}</th>\n                            <td>{{ user.name }}</td>\n                            <td>{{ user.phoneNumber }}</td>\n                            <td>\n                                <div class=\"text-center\">\n\n                                    <button style=\"background-color: rgb(175, 174, 174);height: 100%;\"\n                                        *ngIf=\"!user.block\" type=\"button\" class=\"btn btn-xs \" (click)=\"block(user.id)\">\n                                        <i class=\"fa fa-unlock\" aria-hidden=\"true\"></i>\n\n                                    </button>\n\n\n                                    <button style=\"background-color: rgb(124, 122, 122);height: 100%;\"\n                                        *ngIf=\"user.block\" type=\"button\" class=\"btn btn-xs \" (click)=\"unBlock(user.id)\">\n                                        <i class=\"fa fa-lock\" aria-hidden=\"true\"></i>\n\n                                    </button>\n\n\n                                </div>\n                            </td>\n                        </ng-container>\n                    </tr>\n\n\n\n                </tbody>\n\n            </table>\n\n        </div>\n    </div>\n</div>\n<nav aria-label=\"Page navigation example\">\n    <ul class=\"pagination\">\n        <li (click)='prev()' class=\"page-item\"><a class=\"page-link\">Previous</a></li>\n        <li *ngFor=\"let pageNumber of pageNumbers; let i =index\" (click)='changeNumber(pageNumber)' class=\"page-item\"><a\n                class=\"page-link\">{{pageNumber + 1}}</a></li>\n\n        <li (click)='next()' class=\"page-item\"><a class=\"page-link\">Next</a></li>\n    </ul>\n</nav>";
     /***/
   },
 
@@ -195,7 +195,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         this.usersSrvice = usersSrvice;
         this.data = [];
-        this.getAllUsers();
+        this.pageNumbers = [];
+        this.currentPage = 0;
+        this.getAllUsers(this.currentPage);
       }
 
       _createClass(UsersComponent, [{
@@ -203,10 +205,39 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         value: function getAllUsers() {
           var _this = this;
 
-          this.usersSrvice.getAll().subscribe(function (result) {
+          var pageNumber = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+          this.usersSrvice.getAll(pageNumber).subscribe(function (result) {
             _this.data = result.data;
+
+            _this.generatePageNumbers(result.pageCount);
+
             console.log('JSON Response = ', _this.data);
           });
+        }
+      }, {
+        key: "generatePageNumbers",
+        value: function generatePageNumbers(pageCount) {
+          this.pageNumbers = [];
+
+          for (var i = 0; i < pageCount; i++) {
+            this.pageNumbers.push(i);
+          }
+        }
+      }, {
+        key: "changeNumber",
+        value: function changeNumber(ind) {
+          this.currentPage = ind;
+          this.getAllUsers(this.currentPage);
+        }
+      }, {
+        key: "prev",
+        value: function prev() {
+          this.changeNumber(this.currentPage - 1);
+        }
+      }, {
+        key: "next",
+        value: function next() {
+          this.changeNumber(this.currentPage + 1);
         }
       }, {
         key: "block",
@@ -214,7 +245,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           var _this2 = this;
 
           this.usersSrvice.block(id).subscribe(function (result) {
-            _this2.getAllUsers();
+            _this2.getAllUsers(_this2.currentPage);
 
             console.log(result);
           });
@@ -227,7 +258,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           this.usersSrvice.unBlock(id).subscribe(function (result) {
             console.log(result);
 
-            _this3.getAllUsers();
+            _this3.getAllUsers(_this3.currentPage);
           });
         }
       }, {
@@ -725,7 +756,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       _createClass(UsersService, [{
         key: "getAll",
         value: function getAll() {
-          return this.http.get("".concat(this.apiUrl)).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["catchError"])(this.handleError));
+          var pageNumber = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+          return this.http.get("".concat(this.apiUrl, "?currentPage=").concat(pageNumber)).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["catchError"])(this.handleError));
         }
       }, {
         key: "block",

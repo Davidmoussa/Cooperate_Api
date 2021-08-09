@@ -9,7 +9,7 @@
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony default export */ __webpack_exports__["default"] = ("<div [@routerTransition]>\n    <h2 class=\"text-muted\">Users </h2>\n    \n\n    <!-- /Table for users -->\n    <div class=\"row\">\n        <div class=\"col col-xl-12\">\n            \n                <table class=\"table table-hover  table-bordered table-striped text-center \">\n                    <thead>\n                        <tr>\n                            <th> {{'id' | translate }}</th>\n                            <th>{{'Name' | translate }}</th>\n                            <th>{{'Phone Number' | translate }}</th>\n                            <th>Block/Unblock</th>\n\n                        </tr>\n                    </thead>\n                    <tbody>\n                        <tr *ngFor=\"let user of data\">\n                            <ng-container *ngIf=\"user.confirmed!=3\">\n                                <th scope=\"row\">{{ user.id }}</th>\n                                <td>{{ user.name  }}</td>\n                                <td>{{ user.phoneNumber }}</td>\n                                <td>\n                                    <div class=\"text-center\">\n\n                                        <button style=\"background-color: rgb(175, 174, 174);height: 100%;\" *ngIf=\"!user.block\" type=\"button\" class=\"btn btn-xs \"(click)=\"block(user.id)\">\n                                            <i class=\"fa fa-unlock\" aria-hidden=\"true\"></i>\n\n                                        </button>\n                                    \n                                       \n                                        <button style=\"background-color: rgb(124, 122, 122);height: 100%;\" *ngIf=\"user.block\" type=\"button\" class=\"btn btn-xs \"(click)=\"unBlock(user.id)\">\n                                            <i class=\"fa fa-lock\" aria-hidden=\"true\"></i>\n\n                                        </button>\n\n\n                                    </div>\n                                </td>\n                            </ng-container>\n                        </tr>\n\n\n\n                    </tbody>\n\n                </table>\n            \n        </div>\n    </div>\n</div>\n\n");
+/* harmony default export */ __webpack_exports__["default"] = ("<div [@routerTransition]>\n    <h2 class=\"text-muted\">Users </h2>\n\n\n    <!-- /Table for users -->\n    <div class=\"row\">\n        <div class=\"col col-xl-12\">\n\n            <table class=\"table table-hover  table-bordered table-striped text-center \">\n                <thead>\n                    <tr>\n                        <th> {{'id' | translate }}</th>\n                        <th>{{'Name' | translate }}</th>\n                        <th>{{'Phone Number' | translate }}</th>\n                        <th>Block/Unblock</th>\n\n                    </tr>\n                </thead>\n                <tbody>\n                    <tr *ngFor=\"let user of data\">\n                        <ng-container *ngIf=\"user.confirmed!=3\">\n                            <th scope=\"row\">{{ user.id }}</th>\n                            <td>{{ user.name }}</td>\n                            <td>{{ user.phoneNumber }}</td>\n                            <td>\n                                <div class=\"text-center\">\n\n                                    <button style=\"background-color: rgb(175, 174, 174);height: 100%;\"\n                                        *ngIf=\"!user.block\" type=\"button\" class=\"btn btn-xs \" (click)=\"block(user.id)\">\n                                        <i class=\"fa fa-unlock\" aria-hidden=\"true\"></i>\n\n                                    </button>\n\n\n                                    <button style=\"background-color: rgb(124, 122, 122);height: 100%;\"\n                                        *ngIf=\"user.block\" type=\"button\" class=\"btn btn-xs \" (click)=\"unBlock(user.id)\">\n                                        <i class=\"fa fa-lock\" aria-hidden=\"true\"></i>\n\n                                    </button>\n\n\n                                </div>\n                            </td>\n                        </ng-container>\n                    </tr>\n\n\n\n                </tbody>\n\n            </table>\n\n        </div>\n    </div>\n</div>\n<nav aria-label=\"Page navigation example\">\n    <ul class=\"pagination\">\n        <li (click)='prev()' class=\"page-item\"><a class=\"page-link\">Previous</a></li>\n        <li *ngFor=\"let pageNumber of pageNumbers; let i =index\" (click)='changeNumber(pageNumber)' class=\"page-item\"><a\n                class=\"page-link\">{{pageNumber + 1}}</a></li>\n\n        <li (click)='next()' class=\"page-item\"><a class=\"page-link\">Next</a></li>\n    </ul>\n</nav>");
 
 /***/ }),
 
@@ -111,24 +111,43 @@ let UsersComponent = class UsersComponent {
     constructor(usersSrvice) {
         this.usersSrvice = usersSrvice;
         this.data = [];
-        this.getAllUsers();
+        this.pageNumbers = [];
+        this.currentPage = 0;
+        this.getAllUsers(this.currentPage);
     }
-    getAllUsers() {
-        this.usersSrvice.getAll().subscribe((result) => {
+    getAllUsers(pageNumber = 0) {
+        this.usersSrvice.getAll(pageNumber).subscribe((result) => {
             this.data = result.data;
+            this.generatePageNumbers(result.pageCount);
             console.log('JSON Response = ', this.data);
         });
     }
+    generatePageNumbers(pageCount) {
+        this.pageNumbers = [];
+        for (let i = 0; i < pageCount; i++) {
+            this.pageNumbers.push(i);
+        }
+    }
+    changeNumber(ind) {
+        this.currentPage = ind;
+        this.getAllUsers(this.currentPage);
+    }
+    prev() {
+        this.changeNumber(this.currentPage - 1);
+    }
+    next() {
+        this.changeNumber(this.currentPage + 1);
+    }
     block(id) {
         this.usersSrvice.block(id).subscribe((result) => {
-            this.getAllUsers();
+            this.getAllUsers(this.currentPage);
             console.log(result);
         });
     }
     unBlock(id) {
         this.usersSrvice.unBlock(id).subscribe((result) => {
             console.log(result);
-            this.getAllUsers();
+            this.getAllUsers(this.currentPage);
         });
     }
     ngOnInit() { }
@@ -430,8 +449,8 @@ let UsersService = class UsersService {
             })
         };
     }
-    getAll() {
-        return this.http.get(`${this.apiUrl}`)
+    getAll(pageNumber = 0) {
+        return this.http.get(`${this.apiUrl}?currentPage=${pageNumber}`)
             .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["catchError"])(this.handleError));
     }
     block(acountId) {
